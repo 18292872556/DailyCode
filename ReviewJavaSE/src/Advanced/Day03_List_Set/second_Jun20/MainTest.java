@@ -130,6 +130,5 @@ public class MainTest {
         });
         System.out.println("list姓名升序：" + peopleList.toString());
 
-
     }
 }
