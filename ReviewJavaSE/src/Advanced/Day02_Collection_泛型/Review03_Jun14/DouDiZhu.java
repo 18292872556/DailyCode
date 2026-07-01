@@ -40,7 +40,6 @@ public class DouDiZhu {
         flower.add("♥");
         ArrayList<String> num = new ArrayList<>();
         num.addAll(Arrays.asList("3","4","5","6","7","8","9","10","J","Q","K","A","2"));
-        //num.addAll(flower);
         ArrayList<String> weight = new ArrayList();
         int flag = 0;
         for(int i = 0; i < num.size(); i++){

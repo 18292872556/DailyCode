@@ -111,22 +111,76 @@ public class MainTest {
         new MainTest().printLower(coll3);
         new MainTest().printLower(coll4);
 
-
-
         //     * 题目 4：斗地主案例改造
         //     * 基于文档中的斗地主洗牌发牌案例，完成以下改造：
         //     * 给每张牌增加权重（比如大王 > 小王 > 2>A>K>Q>J>10...），发牌后对每个玩家的牌按权重排序；
         //     * 输出时按 “大王、小王、2、A、K、Q、J、10、9...” 的顺序展示每个玩家的牌；
+        //      将最后3张牌直接存放于底牌
         //     * 要求代码结构清晰，新增排序逻辑需封装为独立方法。
         /*思路分析，之前排序考虑过用List集合的下标来表示权重，可行，就是要写一个专门的List集合来存储权重大小，
         在排序时查看核心方法indexOf(元素值)*/
         /*最方便常用的方法就是使用Map<Integer,String>*/
         //记录牌,因为洗牌要使用shuffle()随机打乱集合顺序，有顺序就是属于List的方法，那么对于方法是运行看左，使用看右。
         //所以不能继续用接口构造而是直接ArrayList
-//        List<String> poker = new ArrayList<>();
-//        List<String> flower = new ArrayList<>();
-//        List<String> number = new ArrayList<>();
-//        flower.addAll(Arrays.asList("♥️", "♣️", "♦️", "♠️"));
+        System.out.println("----------------题4：斗地主案例，List下标记录权重");
+        /*用List的下标来记录权重*/
+        List<String> weight = new ArrayList<>();
+        List<String> flower = new ArrayList<>();
+        List<String> number = new ArrayList<>();
+        flower.addAll(Arrays.asList("♥️",  "♦️", "♣️","♠️"));
+        Collections.addAll(number,"3", "4", "5", "6", "7", "8", "9"
+        , "10", "J", "Q", "K", "A", "2");
+        //因为要按List的下标来做大小，所以数字也是按升序写的，
+        //构造牌的时候也要按从小到大的顺序，所以同一个数字不同花色应该算是同一个大小
+        //顺序也是紧挨着，所以双层嵌套构造时应该数字是外循环，花色是内循环
+        for(int i = 0; i < number.size(); i++){
+            for(int j = 0; j < flower.size(); j++){
+                weight.add(flower.get(j) + number.get(i));
+            }
+        }
+        weight.add("小王");
+        weight.add("大王");
+        //System.out.println("升序创建好的扑克牌为：" + weight);
+        /*创建牌值的记录*/
+        List<String> poker = new ArrayList<>();
+        poker.addAll(weight);
+        /*？疑问： 确定了addAll可以多次添加多个同类集合*/
+        //poker.addAll(flower);
+        //System.out.println(poker);
+
+        /*洗牌*/
+        Collections.shuffle(poker);
+        System.out.println("洗完牌后：" + poker);
+        System.out.println("牌值由小到大为：" + weight);
+
+        /*发牌*/
+        List<String> person1 = new ArrayList<>();
+        List<String> person2 = new ArrayList<>();
+        List<String> person3 = new ArrayList<>();
+        List<String> kitty = new ArrayList<>();
+        for(int i = 0; i < poker.size(); i++){
+            if(i >= 51){//因为总共是13*4+2=54张牌，底牌需要留3张
+                kitty.add(poker.get(i));
+            }else if(i%3 == 0){
+                person1.add(poker.get(i));
+            }else if(i%3 == 1){
+                person2.add(poker.get(i));
+            }else if(i%3 == 2){
+                person3.add(poker.get(i));
+            }
+        }
+        System.out.println("发完牌3人的牌和底牌：" + person1 + "\n" + person2
+                + "\n" + person3 + "\n" + kitty);
+        /* ● 核心：对每个玩家手里的牌排序，这里第一次使用weight来排序
+        * 核心方法集合.indexOf(元素)通过元素来找到对应下标，然后比较器规则里就比较这个*/
+        Collections.sort(person1,new WeightComparator<String>(weight));
+        Collections.sort(person2,new WeightComparator<String>(weight));
+        Collections.sort(person3,new WeightComparator<String>(weight));
+        Collections.sort(kitty,new WeightComparator<String>(weight));
+
+        System.out.println("排序后的三人牌和底牌" + person1 + "\n" + person2
+                + "\n" + person3 + "\n" + kitty);
+
 
 
 
