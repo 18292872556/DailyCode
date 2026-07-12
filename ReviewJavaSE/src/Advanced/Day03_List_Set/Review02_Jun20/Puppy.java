@@ -30,4 +30,6 @@ public class Puppy implements Comparator<Puppy> {
         return o1.name.equals(o2.name) ? o1.master.compareTo(o2.master) :
                 o2.name.compareTo(o1.name);
     }
+
+
 }
