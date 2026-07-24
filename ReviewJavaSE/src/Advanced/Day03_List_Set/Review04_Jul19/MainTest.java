@@ -1,5 +1,7 @@
 package Advanced.Day03_List_Set.Review04_Jul19;
 
+import java.util.*;
+
 /**
  * Created with IntelliJ IDEA 2024.1.4.
  * jdk 17.0.12
@@ -8,7 +10,13 @@ package Advanced.Day03_List_Set.Review04_Jul19;
  * @Date: 2026/07/19/下午10:38
  * @Description:
  */
-public class MainTest {
+public class People {
+    int id;
+    public People(int id) {
+        this.id = id;
+    }
+    public People(){
+    }
     private static void demo01(){
         //复习自然排序的接口的2用法和比较器的3种
         //首先有一些引用对象是内部有排序规则的，比如String,自动调用集合内元素排序规则的
@@ -36,20 +44,78 @@ public class MainTest {
         System.out.println(Boolean.valueOf(true).compareTo(Boolean.valueOf("true")));
         System.out.println(Boolean.valueOf(false).compareTo(false));
 
-        System.out.println();
+        System.out.println("a".compareTo("b"));
+        System.out.println(Character.valueOf('c').compareTo('d'));
     }
+    //问题2：给自定义类继承重写自然排序，要求自定义Student类属性有id，姓名，用id升序排序
+    //并且用TreeSet和Collections.sort()检查排序结果
+    private static void demo02(){
+        Student stu1 = new Student(1, "Barbie");
+        Student stu2 = new Student(3, "Bob");
+        Student stu3 = new Student(2, "Carl");
+
+        TreeSet<Student> set = new TreeSet<>(stu1);
+        set.add(stu1);
+        set.add(stu2);
+        set.add(stu3);
+        System.out.println("TreeSet: " + set);
+
+        List<Student> list = new ArrayList<>();
+        list.add(stu1);
+        list.add(stu2);
+        list.add(stu3);
+        System.out.println("排序前的List:" + list);
+        Collections.sort(list, stu1);
+        System.out.println("排序后的List,Student以id升序:" + list);
+    }
+    //比较器排序
+    //问题1：在自定义类中继承重写，要求Puppy类属性有id，姓名，和年龄。用年龄降序排序，
+    // 年龄相等的情况下用id升序。
+    private static void demo03(){
+        Puppy p1 = new Puppy(3, "边牧", 1);
+        Puppy p2 = new Puppy(1, "柯基", 4);
+        Puppy p3 = new Puppy(3, "萨摩耶", 12);
+        Puppy p4 = new Puppy(1, "西高地", 12);
+        List<Puppy> list = new ArrayList<>();
+        list.add(p1);
+        list.add(p2);
+        list.add(p3);
+        list.add(p4);
+        Collections.sort(list, p1);
+        System.out.println("Puppu集合年龄降序，再id升序为：" + list);
+
+    }
+    //问题3：在TreeSet,Map和Collections.sort()创建时传入匿名的比较器实现类
+//    private void demo04(){
+//        //id降序
+//        People mainTest1 = new People();
+//        People mainTest2 = new People();
+//        People mainTest3 = new People();
+//        People mainTest4 = new People();
+//        TreeSet<People> set = new ArrayList<>(new Comparator<People>() {
+//            @Override
+//            public int compare(People o1, People o2) {
+//                return o2.id - o1.id;
+//            }
+//        });
+//        set.add(mainTest1);
+//        set.add(mainTest2);
+//        set.add(mainTest3);
+//        set.add(mainTest4);
+//
+//
+//    }
     public static void main(String[] args) {
 
         demo01();
 
-        //问题2：给自定义类继承重写自然排序，要求自定义Student类属性有id，姓名，用id升序排序
-        //并且用TreeSet,TreeMap和Collections.sort()检查排序结果
+        demo02();
 
-        //比较器排序
-        //问题1：在自定义类中继承重写，要求Puppy类属性有id，姓名，主人和年龄。用年龄降序排序，
-        // 年龄相等的情况下用id升序。
+        demo03();
         //问题2：在TreeSet,Map和Collections.sort()创建时传入写好比较器的Puppy类？
         //还是传入已经重写了比较器的类对象？
-        //问题3：在TreeSet,Map和Collections.sort()创建时传入匿名的比较器实现类
+        //是已经重写的类【对象】
+
+        demo04();
     }
 }
