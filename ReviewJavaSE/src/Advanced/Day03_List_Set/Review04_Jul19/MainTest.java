@@ -10,13 +10,13 @@ import java.util.*;
  * @Date: 2026/07/19/下午10:38
  * @Description:
  */
-public class People {
-    int id;
-    public People(int id) {
-        this.id = id;
-    }
-    public People(){
-    }
+public class MainTest {
+//    int id;
+//    public People(int id) {
+//        this.id = id;
+//    }
+//    public People(){
+//    }
     private static void demo01(){
         //复习自然排序的接口的2用法和比较器的3种
         //首先有一些引用对象是内部有排序规则的，比如String,自动调用集合内元素排序规则的
@@ -86,25 +86,25 @@ public class People {
 
     }
     //问题3：在TreeSet,Map和Collections.sort()创建时传入匿名的比较器实现类
-//    private void demo04(){
-//        //id降序
-//        People mainTest1 = new People();
-//        People mainTest2 = new People();
-//        People mainTest3 = new People();
-//        People mainTest4 = new People();
-//        TreeSet<People> set = new ArrayList<>(new Comparator<People>() {
-//            @Override
-//            public int compare(People o1, People o2) {
-//                return o2.id - o1.id;
-//            }
-//        });
-//        set.add(mainTest1);
-//        set.add(mainTest2);
-//        set.add(mainTest3);
-//        set.add(mainTest4);
-//
-//
-//    }
+    private static void demo04(){
+        //id降序
+        People p1 = new People(4, "人1");
+        People p2 = new People(1, "人2");
+        People p3 = new People(3, "人3");
+        People p4 = new People(2, "人4");
+        TreeSet<People> set = new TreeSet<>(new Comparator<People>() {
+            @Override
+            public int compare(People o1, People o2) {
+                return o2.id - o1.id;
+            }
+        });
+        set.add(p1);
+        set.add(p2);
+        set.add(p3);
+        set.add(p4);
+
+
+    }
     public static void main(String[] args) {
 
         demo01();
@@ -115,7 +115,6 @@ public class People {
         //问题2：在TreeSet,Map和Collections.sort()创建时传入写好比较器的Puppy类？
         //还是传入已经重写了比较器的类对象？
         //是已经重写的类【对象】
-
         demo04();
     }
 }
