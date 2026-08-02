@@ -163,55 +163,120 @@ public class Main {
 //张三18
 //要求最终只有两个对象。
 //重写equals和hashCode。
-//    private static void demo08(){
-//        Student08 stu1 = new Student08("张三", 18);
-//        Student08 stu2 = new Student08("李四", 20);
-//        Student08 stu3 = new Student08("张三", 18);
-//
-//        HashSet<Student08> set = new HashSet<>();
-//        set.add(stu1);
-//        set.add(stu2);
-//        set.add(stu3);
-//        System.out.println("HashSet<Student08>" + set);
-//
-//    }
+    private static void demo08(){
+        Student08 stu1 = new Student08("张三", 18);
+        Student08 stu2 = new Student08("李四", 20);
+        Student08 stu3 = new Student08("张三", 18);
+
+        HashSet<Student08> set = new HashSet<>();
+        set.add(stu1);
+        set.add(stu2);
+        set.add(stu3);
+        System.out.println("HashSet<Student08>" + set);
+
+    }
 //题目9：HashSet去重规则
 //修改Student类，使姓名和年龄相同的对象认为重复。
 //实现equals和hashCode。
-//
+    private static void demo09(){
+       Student09 stu1 = new Student09("Barbie", 20);
+       Student09 stu2 = new Student09("Barbie", 18);
+       Student09 stu3 = new Student09("Ken", 20);
+       Student09 stu4 = new Student09("Barbie", 20);
+       Set<Student09> set = new HashSet<>();
+       Collections.addAll(set, stu1, stu2, stu3, stu4);
+       System.out.println("HashSet<Student09>:" + set);
+    }
 //题目10：LinkedHashSet保持顺序
 //创建LinkedHashSet<String>。
 //添加：
 //bbb、aaa、ccc、bbb。
 //要求输出：
 //bbb、aaa、ccc。
-//
+    private static void demo10(){
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+        set.add("bbb");
+        set.add("aaa");
+        set.add("ccc");
+        set.add("bbb");
+        System.out.println("LinkedHashSet<String>:" + set);
+    }
+
 //题目11：可变参数求和
 //定义sum方法。
 //要求支持：
 //sum(1,2,3)
 //sum(10,20,30,40)
 //返回总和。
-//
+    private static int sum(int... intArr){
+        int sum = 0;
+        for(int i = 0; i < intArr.length; i++){
+            sum += intArr[i];
+        }
+        return sum;
+    }
+
+    private static void demo11(){
+        System.out.println("sum(1,2,3)结果：" + sum(1,2,3));
+        System.out.println("sum(10,20,30,40)结果：" + sum(10,20,30,40));
+    }
 //题目12：Collections.addAll
 //创建ArrayList<Integer>。
 //使用Collections.addAll添加：
 //5、3、8、1、6。
-//
+
 //题目13：Collections.sort排序
 //使用Collections.sort对：
 //5、3、8、1、6
 //进行升序排序。
-//
+    private static void demo12_13(){
+        ArrayList<Integer> list = new ArrayList<>();
+        Collections.addAll(list, 5,3,8,1,6);
+        System.out.println("list:" + list);
+        Collections.sort(list);
+        System.out.println("排序后的list:" + list );
+    }
+
 //题目14：Comparator字符串排序
 //创建ArrayList<String>：
 //cba、aba、sba、nba。
 //使用Comparator按照第一个字符降序排序。
-//
+    private static void demo14(){
+        ArrayList<String> list = new ArrayList<>();
+        list.addAll(Arrays.asList("cba", "aba", "sba", "nba"));
+        System.out.println("list:" + list);
+        Collections.sort(list, new Comparator<String>(){
+            @Override
+            public int compare(String o1, String o2){
+                return o2.charAt(0) - o1.charAt(0);
+            }
+        });
+        System.out.println("list按首字母降序排序后:" +list);
+    }
 //题目15：Comparator学生排序
 //定义Student(name,age)。
 //使用Comparator按照年龄升序排序。
-//
+    private static void demo15(){
+        TreeSet<Student> set = new TreeSet<>(new Comparator<Student>() {
+            @Override
+            public int compare(Student o1, Student o2) {
+                return o1.age - o2.age;
+            }
+        });
+        Student stu1 = new Student("Barbie", 10);
+        Student stu2 = new Student("Barbie", 12);
+        Student stu3 = new Student("Barbie", 15);
+        Student stu4 = new Student("Barbie", 10);
+        set.add(stu1);
+        set.add(stu2);
+        set.add(stu3);
+        set.add(stu4);
+        System.out.println("TreeSet年龄升序:" + set);
+
+
+
+
+    }
 //题目16：Comparator多条件排序
 //Student(name,age)。
 //排序规则：
@@ -224,16 +289,68 @@ public class Main {
 //abc16
 //ace17
 //mark16
-//
+    private static void demo16(){
+        List<Student> list = new ArrayList<>();
+        Student stu1 = new Student("rose", 18);
+        Student stu2 = new Student("jack16", 16);
+        Student stu3 = new Student("abc16", 16);
+        Student stu4 = new Student("ace17", 17);
+        Student stu5 = new Student("mark", 16);
+
+        list.add(stu1);
+        list.add(stu2);
+        list.add(stu3);
+        list.add(stu4);
+        list.add(stu5);
+        Collections.sort(list, new Comparator<Student>() {
+            @Override
+            public int compare(Student o1, Student o2) {
+                int result = o2.age - o1.age;
+                if(result == 0){
+                    result = o1.name.charAt(0) - o2.name.charAt(0);
+                }
+                return result;
+            }
+        });
+        System.out.println("list双层条件排序后：" + list);
+    }
 //题目17：Comparable自然排序
 //让Student实现Comparable<Student>。
 //要求Collections.sort按照年龄升序。
-//
+    private static void demo17(){
+        List<Student17> list = new ArrayList<>();
+        Student17 stu1 = new Student17("rose", 18);
+        Student17 stu2 = new Student17("rose", 30);
+        Student17 stu3 = new Student17("rose", 19);
+        Collections.sort(list);
+
+    }
 //题目18：集合选择
-//需求1：大量查询用户，根据索引获取。
-//需求2：大量头部添加删除元素。
+//需求1：
+//保存大量用户数据，需要频繁通过索引获取用户：
+//User user = list.get(index);
+//需求2：
+//需要频繁在集合头部添加和删除元素。
 //分别选择ArrayList还是LinkedList，并写创建代码。
-//
+//分别选择ArrayList还是LinkedList，并写创建代码。
+    private static void demo18(){
+        Student stu1 = new Student("rose", 18);
+        Student stu2 = new Student("jack16", 16);
+        Student stu3 = new Student("abc16", 16);
+        Student stu4 = new Student("ace17", 17);
+        Student stu5 = new Student("mark", 16);
+        Student stu6 = new Student("mark", 19);
+        //假设用户是Student类型，
+        //根据索引查询用户获取，就是遍历？
+        //1.ArrayList，头部添加可以直接add(0)，删除的话就是remove(0)
+        List<Student> list = new ArrayList<>();
+        list.addAll(Arrays.asList(stu1, stu2, stu3, stu4, stu5, stu6));
+        for(int i = 0; )
+
+
+        //2.LinkedList
+    }
+
 //题目19：HashSet统计学生数量
 //学生：
 //张三18
@@ -250,31 +367,42 @@ public class Main {
 //4. 查询学生
 //5. 遍历学生
 //
+
+
+
+
+    //自己之前编写的问题
     //Comparable和Comparator有什么区别？
     //:复习自然排序的接口的2用法和比较器的3种
     //首先有一些引用对象是内部有排序规则的，比如String,自动调用集合内元素排序规则的
     // 方法主要是TreeSet,TreeMap，和Collections.sort(List<?> list)
-    //题目20：使用自然排序中的方法，比较所有包装类型大小，并考虑参数的可用类型
+    //题目21：使用自然排序中的方法，比较所有包装类型大小，并考虑参数的可用类型
 
-    //问题21：给自定义类继承重写自然排序，要求自定义Student类属性有id，姓名，用id升序排序
+    //问题22：给自定义类继承重写自然排序，要求自定义Student类属性有id，姓名，用id升序排序
     //并且用TreeSet,TreeMap和Collections.sort()检查排序结果
 
     //比较器排序
-    //问题22：在自定义类中继承重写，要求Puppy类属性有id，姓名，主人和年龄。用年龄降序排序，
+    //问题23：在自定义类中继承重写，要求Puppy类属性有id，姓名，主人和年龄。用年龄降序排序，
     // 年龄相等的情况下用id升序。
-    //问题23：在TreeSet,Map和Collections.sort()创建时传入写好比较器的Puppy类？
+    //问题24：在TreeSet,Map和Collections.sort()创建时传入写好比较器的Puppy类？
     //还是传入已经重写了比较器的类对象？
-    //问题24：在TreeSet,Map和Collections.sort()创建时传入匿名的比较器实现类
+    //问题25：在TreeSet,Map和Collections.sort()创建时传入匿名的比较器实现类
 
     public static void main(String[] args) {
-        demo01();
-        demo02();
-        demo03();
-        demo04();
-        demo05();
-        demo06();
-        demo07();
+//        demo01();
+//        demo02();
+//        demo03();
+//        demo04();
+//        demo05();
+//        demo06();
+//        demo07();
         demo08();
+        demo09();
+        demo10();
+        demo11();
+        demo12_13();
+        demo14();
+        demo15();
     }
 
 }

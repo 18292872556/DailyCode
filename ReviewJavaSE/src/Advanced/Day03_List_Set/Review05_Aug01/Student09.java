@@ -7,14 +7,15 @@ import java.util.Objects;
  * jdk 17.0.12
  *
  * @Authur: xuexuezi
- * @Date: 2026/08/01/下午11:41
- * @Description: 要求元素不可重复，就是要重写hashcode和equals
+ * @Date: 2026/08/02/下午5:21
+ * @Description:
  */
-public class Student08 {
+public class Student09 {
+    //使姓名和年龄相同的对象认为重复
     String name;
     int age;
 
-    public Student08(String name, int age) {
+    public Student09(String name, int age) {
         this.name = name;
         this.age = age;
     }
@@ -24,19 +25,20 @@ public class Student08 {
         if(this == o){
             return true;
         }
-        if(this.getClass() != o.getClass() || o == null){
+        if(o == null || getClass() != o.getClass()){
             return false;
         }
-        Student08 stu = (Student08) o;
+        Student09 stu = (Student09)o;
         return (this.name.equals(stu.name)) && (this.age == stu.age);
     }
 
     @Override
     public int hashCode(){
-        return Objects.hash(name,age);
+        return Objects.hash(name, age);
     }
 
+    @Override
     public String toString(){
-        return "Student08{ name: " + name + ", age: " + age + " }";
+        return "Student09{" + "name=" + name + ", age=" + age + '}';
     }
 }
