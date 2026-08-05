@@ -345,10 +345,65 @@ public class Main {
         //1.ArrayList，头部添加可以直接add(0)，删除的话就是remove(0)
         List<Student> list = new ArrayList<>();
         list.addAll(Arrays.asList(stu1, stu2, stu3, stu4, stu5, stu6));
-        for(int i = 0; )
+        //多存储一些元素才能频繁获取
+        for(int i = 0; i < 1000; i++){
+            list.add(new Student("学生" + i, i));
+        }
+        System.out.println("ArrayList学生集合：");
+
+        //频繁读取，但不是遍历所以使用随机数的方式
+        int flag = 1;
+        int count = 0;
+
+        long begin = System.currentTimeMillis();
+        while(flag != 0){
+            //也就是当随机到0的时候就停止
+            //获取随机的学生
+            flag = new Random().nextInt(1006);//这样随机数的范围就是[0,1000)
+            System.out.print(list.get(flag) +",");
+            count++;
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("\nArrayList频繁访问共访问了" + count + "次。" +
+                "用时：" + (end - begin) + "ms");
+
+        //频繁头部添加删除
+        for(int i = 0; i < 1000; i++){
+            //因为走到这flag已经随机到0了，所以换一个随机数//因为不知道要添加什么学生属性所以把while改成for
+            list.add(0, new Student("学生头部" + i, i));
+        }
+        System.out.println("ArrayList频繁头部添加后：" + list + "\n"
+        + "长度为： " + list.size());
+        for(int i = 0; i < 1000; i++){
+            list.remove(0);
+        }
+        System.out.println("ArrayList频繁头部删除后：" + list + "\n"
+        + "长度为：" + list.size());
+
 
 
         //2.LinkedList
+        LinkedList<Student> linkedList = new LinkedList<>();
+        linkedList.addAll(list);
+        //频繁访问
+        count = 0;
+        begin = System.currentTimeMillis();
+        while(flag != 1){
+            flag = new Random().nextInt(1006);
+            System.out.print(linkedList.get(flag) +",");
+            count++;
+        }
+        end = System.currentTimeMillis();
+        System.out.println("\nLinkedList共频繁访问：" + count + "次。"
+        + "用时：" + (end - begin) + "ms");
+        //频繁头部添加和删除
+        for(int i = 0; i < 1000; i++){
+            linkedList.addFirst(new Student("头部学生" + i, i));
+        }
+        for(int i = 0; i < 1000; i++){
+            linkedList.remove(0);
+        }
+
     }
 
 //题目19：HashSet统计学生数量
@@ -358,7 +413,19 @@ public class Main {
 //王五20
 //张三18
 //使用HashSet统计学生数量。
-//
+    private static void demo19(){
+        HashSet<Student> set = new HashSet<>();
+        Student stu1 = new Student("张三", 18);
+        Student stu2 = new Student("李四", 19);
+        Student stu3 = new Student("王五", 20);
+        Student stu4 = new Student("张三", 18);
+
+        set.add(stu1);
+        set.add(stu2);
+        set.add(stu3);
+        set.add(stu4);
+        System.out.println("HashSet存储的学生数为：" + set.size());
+    }
 //题目20：学生管理系统
 //使用ArrayList<Student>完成：
 //1. 添加学生
@@ -366,11 +433,39 @@ public class Main {
 //3. 修改学生
 //4. 查询学生
 //5. 遍历学生
-//
+    private static void demo20(){
+        ArrayList<Student> list = new ArrayList<>();
+        Student stu1 = new Student("rose", 40);
+        Student stu2 = new Student("barbie", 18);
+        Student stu3 = new Student("esther", 34);
+        Student stu4 = new Student("linda", 28);
+
+        list.add(stu1);
+        list.add(stu2);
+        list.add(stu3);
+        list.add(stu4);
+
+        list.remove(2);
+        list.remove(stu1);
+        System.out.println("查询linda" );
+        Student find = null;
+        for(Student stu : list){
+            if("linda".equals(stu.name)){
+                find = stu;
+                break;
+            }
+        }
+        if(find != null){
+            System.out.println("查到的学生为：" + find);
+        }
+
+        System.out.println("遍历：");
+        for(Student stu : list){
+            System.out.print(stu + ",");
+        }
 
 
-
-
+    }
     //自己之前编写的问题
     //Comparable和Comparator有什么区别？
     //:复习自然排序的接口的2用法和比较器的3种
@@ -396,13 +491,17 @@ public class Main {
 //        demo05();
 //        demo06();
 //        demo07();
-        demo08();
-        demo09();
-        demo10();
-        demo11();
-        demo12_13();
-        demo14();
-        demo15();
+//        demo08();
+//        demo09();
+//        demo10();
+//        demo11();
+//        demo12_13();
+//        demo14();
+//        demo15();
+//        demo16();
+//        demo17();
+//        demo18();
+        demo19();
+        demo20();
     }
-
 }
