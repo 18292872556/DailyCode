@@ -82,11 +82,27 @@ public class Main {
             System.out.printf(stu.toString());
         }
         System.out.println("删除18岁以下的后学生为：");
-        for(int i = 0; i<list.size(); i++){
-            if(list.get(i).age < 18){
-                list.remove(i);
+        /*写法有误，因为删除后可能会错误跳过还没有删除的元素*/
+//        for(int i = 0; i<list.size(); i++){
+//             if(list.get(i).age < 18){
+//                list.remove(i);
+//            }
+//        }
+        /*修改：倒序删除或者Iterator,分析为什么可以？
+        * 1. 倒序删除，不论这一位有没有被删除都不影响倒序删除前一位
+        * 2. Iterator，迭代器。移除最后返回的元素，刚好没返回的就不会被删掉。所以可以使用
+        * 更准确的说法：Iterator维护了遍历状态，remove会同步更新遍历指针，因此不会破坏遍历过程。*/
+        Iterator<Student> iterator = list.iterator();
+
+        while(iterator.hasNext()){
+            Student stu = iterator.next();
+            if(stu.age < 18){
+                iterator.remove();
+                //default void remove()
+                //从底层集合中移除最后返回的元素 通过该迭代器（可选操作）。
             }
         }
+
 
         printfList(list);
     }
@@ -108,6 +124,7 @@ public class Main {
            int flag = 0;
            for(Student04 stu : list){
                if(stu.name.equals(name)){
+                   /*Objects.equals(stu.name,name)*/
                    System.out.println("学生信息为：" + stu);
                    flag = 1;
                }
@@ -292,9 +309,9 @@ public class Main {
     private static void demo16(){
         List<Student> list = new ArrayList<>();
         Student stu1 = new Student("rose", 18);
-        Student stu2 = new Student("jack16", 16);
-        Student stu3 = new Student("abc16", 16);
-        Student stu4 = new Student("ace17", 17);
+        Student stu2 = new Student("jack", 16);
+        Student stu3 = new Student("abc", 16);
+        Student stu4 = new Student("ace", 17);
         Student stu5 = new Student("mark", 16);
 
         list.add(stu1);
@@ -322,6 +339,9 @@ public class Main {
         Student17 stu1 = new Student17("rose", 18);
         Student17 stu2 = new Student17("rose", 30);
         Student17 stu3 = new Student17("rose", 19);
+        list.add(stu1);
+        list.add(stu2);
+        list.add(stu3);
         Collections.sort(list);
 
     }
@@ -439,6 +459,7 @@ public class Main {
         Student stu2 = new Student("barbie", 18);
         Student stu3 = new Student("esther", 34);
         Student stu4 = new Student("linda", 28);
+        Student stu5 = new Student("moon", 10);
 
         list.add(stu1);
         list.add(stu2);
@@ -447,6 +468,9 @@ public class Main {
 
         list.remove(2);
         list.remove(stu1);
+
+        list.set(1, stu5);
+
         System.out.println("查询linda" );
         Student find = null;
         for(Student stu : list){

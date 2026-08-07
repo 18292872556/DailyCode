@@ -9,6 +9,18 @@ package Advanced.Day03_List_Set;
  * @Description:
  */
 public class Main {
+    /*一些可优化的细节
+    * demo03 条件删除的时候不可以for循环会跳过还没遍历的元素
+    * 只能for循环倒序遍历，或者用Iterator
+
+    * demo04
+    * 推荐使用Objects.equals(stu.name,name)
+    * 因为Student stu=new Student("",18);完全合法。甚至：
+    * Student stu=new Student(null,18);也可以。
+    * 控制输入，name一般不是null。
+    * Scanner的接收只有nextLine()会接收到空字符串
+    * 创建的Student对象，其中name属性String类型是有可能接收到null或"null"这样的情况，所以需要做判断
+    * */
 
 //day03 List、Set 集合面试题
 
