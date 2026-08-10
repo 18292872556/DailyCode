@@ -191,8 +191,6 @@ public class Main {
         for(Map.Entry<Student, Integer> entry: entrySet){
             System.out.println(entry.getKey() + "-" + entry.getValue());
         }
-
-
     }
 
 //题目12：模拟斗地主准备牌。
@@ -295,9 +293,7 @@ public class Main {
         map.put(p2,"地址2");
         map.put(p3,"地址3");
         System.out.println("没有重写hashCode的HashMap:" + map);
-
     }
-
 
     public static void main(String[] args) {
         demo01();

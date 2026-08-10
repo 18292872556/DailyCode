@@ -30,7 +30,7 @@ public class Student {
         Student student = (Student) obj;
         //return name.equals(student.name) && age == student.age;
         //考虑name为null的情况是否有可能，验证后发现是可以的。所以修改不这样写
-        return Objects.equals(name, student.name);
+        return Objects.equals(name, student.name) && this.age == student.age;
     }
 
     public int hashCode(){
