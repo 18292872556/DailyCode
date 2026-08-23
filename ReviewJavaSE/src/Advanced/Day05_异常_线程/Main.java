@@ -28,6 +28,7 @@ public class Main {
 
 //题目5：使用throw主动抛出异常。
 //要求：年龄小于0时手动抛出异常。
+    /*更好的异常类型illegalArgumentException*/
 
 //题目6：使用throws声明异常。
 //要求：定义方法抛出异常，由调用者处理。
@@ -78,4 +79,12 @@ public class Main {
 
 //题目21：开启新线程
 //要求开启新线程MyThread自定义的，然后调用for循环。main线程也是循环10次打印正在执行哪个线程
+
+    /*代码规范*/
+    //if(uname == null || uname.trim().equals(""))
+    //可改if(uname == null || uname.trim().equals(""))
+    //if (uname == null || uname.isBlank())
+
+    /*System.in 是整个程序的标准输入流，不应该每个方法都随便创建一个 Scanner 并关闭。
+    * 尤其不要sc.close();因为关闭 Scanner 会连带关闭：System.in后面的输入就不能用了。*/
 }

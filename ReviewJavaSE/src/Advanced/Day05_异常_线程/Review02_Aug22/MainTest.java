@@ -130,6 +130,7 @@ public class MainTest {
         try{
             FileOutputStream fos1 = new FileOutputStream("ReviewJavaSE/src/Advanced/Day05_异常_线程/Review02_Aug22/demo10.txt");
             fos1.write("demo10输出，题目10要求\n编写方法测试Checked异常\n调用可能产生IOExeption的方法并处理".getBytes());
+            fos1.close();
         }catch(IOException e){
             e.printStackTrace();
         }finally{
@@ -181,9 +182,9 @@ private static void checkAgeException(int age)throws AgeException{
 //题目14：分析异常调用链。
 //要求：main调用工具类方法，工具类方法发生异常，观察JVM打印的调用栈。
     /*以demo13为例子分析：
-    * 首先是main调用demo12方法，然后demo12在168行调用checkRegisterException(uname)方法
-    * 异常发生在160行，然后在方法体158行通过throws抛出到168行调用处
-    * 发现有异常然后169行catch捕获处理*/
+    * 首先是main调用demo13方法，然后demo13在174行调用checkRegisterException(uname)方法
+    * 异常发生在164行，然后在方法体163行通过throws抛出到174行调用处
+    * 发现有异常然后176行catch捕获处理*/
 
 //题目15：使用printStackTrace查看异常信息。
 //要求：输出异常类型、原因和代码位置。
@@ -201,7 +202,7 @@ private static void checkAgeException(int age)throws AgeException{
 
 //题目16：分析Error和Exception区别。
 //要求：分别举出属于两者的异常类型。
-    /*一个是错误，无法处理只能避免，例如栈溢出（递归没有出口），内存溢出（给数组长度定义Integer.MAX_VALUE）。
+    /*一个是错误，不应该通过捕获Error来设计正常的业务逻辑，例如栈溢出（递归没有出口），内存溢出（给数组长度定义Integer.MAX_VALUE）。
     * 会直接终止程序报错，只能改代码避免
     * 异常可以try捕获，不用修改原代码，只是在原代码的基础上加捕获的部分*/
     private static void test(){
@@ -292,6 +293,7 @@ private static void checkAgeException(int age)throws AgeException{
 
     //想写完善一点就需要判定注册时用户名重复的情况
     static HashMap<String, String> userMap = new HashMap<>();
+    //Map<String, String> userMap = Map.of("Barbie","8888","Ken", "12346");
     /* ● 这种创建方式会有一个问题，就是因为不可修改，所以遇到key重复的问题可能会异常
     *并且还有一个问题就是Map只是一个接口，
 
@@ -299,10 +301,12 @@ private static void checkAgeException(int age)throws AgeException{
     private static void checkSignUp(String uname, String passWord)throws SignUpException {
         if(uname == null || uname.trim().equals("")){
             throw new SignUpException("用户名不可为空");
-        }else if(true == userMap.containsKey(uname)){
+        }else if(userMap.containsKey(uname)){
             throw new SignUpException("用户名重复");
         }else if(uname.length() < 6 || uname.length() > 12){
-            throw new SignUpException("用户名或密码过长or过短，长度只能是6-12位");
+            throw new SignUpException("用户名过长or过短，长度只能是6-12位");
+        }else if(passWord.length() < 6 || passWord.length() > 12){
+            throw new SignUpException("密码过长or过短，长度只能是6-12位");
         }
     }
     private static void checkSignIn(String uname, String pass)throws SignInException {
