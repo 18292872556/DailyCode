@@ -88,7 +88,7 @@ public class MainTest {
             }
         };
         Thread thread1 = new Thread(r1, "线程1");
-        thread1.start();
+
 
         Runnable r2 = new Runnable() {
             @Override
@@ -99,26 +99,78 @@ public class MainTest {
             }
         };
         Thread thread2 = new Thread(r2, "线程2");
+        thread1.start();
         thread2.start();
     }
 // 9. 模拟线程安全问题
 // 创建Ticket实现Runnable，ticket初始值为50，创建3个线程共同售票。
 // 在售票前使用sleep(100)模拟出票耗时，观察并输出售票结果。
     private static void demo09(){
-        
+        Demo09Runnable d9r = new Demo09Runnable();
+        Thread t1 = new Thread(d9r, "线程1");
+        Thread t2 = new Thread(d9r, "线程2");
+        Thread t3 = new Thread(d9r, "线程3");
+
+        t1.start();
+        t2.start();
+        t3.start();
     }
 // 10. 同步代码块解决售票安全问题
 // 修改上一题的Ticket，使判断剩余票数和ticket--的操作放入同步代码块。
 // 要求3个窗口仍然共享同一个Ticket对象。
+    private static void demo10(){
+        Demo10Runnable d10r = new Demo10Runnable();
+        Thread t1 = new Thread(d10r, "线程1");
+        Thread t2 = new Thread(d10r, "线程2");
+        Thread t3 = new Thread(d10r, "线程3");
+
+        t1.start();
+        t2.start();
+        t3.start();
+    }
 // 11. 同步方法解决售票安全问题
 // 创建Ticket实现Runnable，ticket初始值为50。
 // 将售票操作单独封装成sellTicket()同步方法，并在run()中循环调用。
+    private static void demo11(){
+        Demo11Runnable d11r = new Demo11Runnable();
+        Thread t1 = new Thread(d11r, "线程1");
+        Thread t2 = new Thread(d11r, "线程2");
+        Thread t3 = new Thread(d11r, "线程3");
+
+        t1.start();
+        t2.start();
+        t3.start();
+    }
 // 12. Lock解决售票安全问题
 // 使用ReentrantLock为Ticket添加锁。
 // 售票操作执行前加锁，操作结束后释放锁，保证ticket不会出现重复或负数。
+
+    private static void demo12(){
+        Demo12Runnable d12r = new Demo12Runnable();
+        Thread t1 = new Thread(d12r, "线程1");
+        Thread t2 = new Thread(d12r, "线程2");
+        Thread t3 = new Thread(d12r, "线程3");
+
+        t1.start();
+        t2.start();
+        t3.start();
+
+    }
+
 // 13. 多个线程使用同一把锁
 // 创建两个线程共同修改一个共享count变量。
 // 使用同一个Object对象作为同步代码块的锁，最终保证count结果正确。
+    private static void demo13(){
+       /*思考这种情况是不是只能两个线程用同一个Runnable，不可以继承Thread写两个不同的Thread?
+       * 因为那样的话，就不是同一个count变量了？或者跟最开始练习Thread继承一样，写一个自定义线程类对象
+       * 然后在本方法执行也算一个线程，然后变量定义到main线程里？或者把变量作为不同线程的参数？好像不行，
+       * 线程的构造方法没有这种自定义参数的情况，只有target用Runnable实现类对象，或者String定义名字
+       * 算是被main调用的main线程。但如果是3个以上的线程要共享同一个count
+       * 应该就只能用同一个Runnable了吧*/
+
+        //因为题目没有
+
+    }
 // 14. static共享资源的线程安全
 // 定义static int count=0，创建两个线程分别执行1000次count++。
 // 使用同步代码块保证最终输出count为2000。
