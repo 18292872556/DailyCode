@@ -9,10 +9,14 @@ package Advanced.Day06_线程_同步.Review01_Aug23;
  * @Description:
  */
 public class MyRunnable implements Runnable{
+    Object lock = new Object();
     @Override
     public void run(){
-        for(int i=0; i<10; i++){
-            System.out.println(Thread.currentThread().getName()+ i);
+        synchronized(lock){
+            for(int i = 0; i < 10; i++){
+                System.out.println(Thread.currentThread().getName()+  "-" + i);
+            }
         }
+
     }
 }

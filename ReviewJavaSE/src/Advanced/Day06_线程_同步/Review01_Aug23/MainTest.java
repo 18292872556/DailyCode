@@ -114,6 +114,7 @@ public class MainTest {
         t1.start();
         t2.start();
         t3.start();
+        /*会有0，-1*/
     }
 // 10. 同步代码块解决售票安全问题
 // 修改上一题的Ticket，使判断剩余票数和ticket--的操作放入同步代码块。
@@ -168,40 +169,283 @@ public class MainTest {
        * 算是被main调用的main线程。但如果是3个以上的线程要共享同一个count
        * 应该就只能用同一个Runnable了吧*/
 
-        //因为题目没有
+        //因为题目没有详细说明怎么使用count，所以还是写成像卖票一样，哪个线程在运行就对count--
+        Demo13Runnable d13r = new Demo13Runnable();
+        Thread t1 = new Thread(d13r,"线程1");
+        Thread t2 = new Thread(d13r,"线程2");
 
+        t1.start();
+        t2.start();
     }
 // 14. static共享资源的线程安全
 // 定义static int count=0，创建两个线程分别执行1000次count++。
 // 使用同步代码块保证最终输出count为2000。
+    private static void demo14(){
+        /*思考：如果不使用同步代码块会怎么样呢？run方法里执行count++的时候应该只有一句
+        * 好像不用同步代码块，最后也会是2000？想不到会出错的可能性，就算执行到一半被并行抢前执行了
+        * 好像也不会多+一次？count++这种程度应该不会分开执行吧？
+        * 哦！想到一种可能出错的情况，比如A线程此刻访问到的count是2，准备++。此时B抢到了因为A还没++完成
+        * 所以count还是2，所以B就是+完是3，A又抢到，继续+但因为A被抢之前认知的count还是2，新加的并没有同步到A线程count++的执行语句？
+        * 应该是这样，因为之前卖票的案例也是这样出现线程安全问题的。根本原因应该在于ticket--也会先读取到，然后被抢占
+        * 再--？*/
+        /*确定了：count++,ticket--都是复合操作不是原子操作。理解的完全正确，就是因为count++
+        * 分为 int temp = count; temp = temp + 1; count = temp;
+        * 所以例如A线程在第2步读到count = 2 的时候被B抢了，B线程读到count=2,+完=3。
+        * 回到A线程之前读到的还是2,+完 = 3就是会重复+。*/
+
+        Demo14Runnable d14r1 = new Demo14Runnable();
+        Demo14Runnable d14r2 = new Demo14Runnable();
+        Thread t1 = new Thread(d14r1, "线程1");
+        Thread t2 = new Thread(d14r2, "线程2");
+        /*注意：重点在于需要两个线程对同一个count进行++,同时又需要两个线程分别对count++1000次
+        * 只能使用static类变量，同类不同对象来创造线程*/
+
+        t1.start();
+        t2.start();
+    }
 // 15. 非static同步方法
 // 创建Counter类，定义成员变量count和add()方法。
 // 将add()定义为同步方法，创建两个线程共享同一个Counter对象并执行1000次累加。
+    private static void demo15(){
+        Counter counter = new Counter();
+        Thread t1 = new Thread(counter, "线程1");
+        Thread t2 = new Thread(counter, "线程2");
+
+        t1.start();
+        t2.start();
+    }
 // 16. static同步方法
 // 定义static成员变量count，并定义static同步方法add()对count执行累加。
 // 创建两个线程分别执行1000次add()，最后输出count。
+    private static void demo16(){
+        Counter counter = new Counter();
+        Thread t1 = new Thread(counter, "线程1");
+        Thread t2 = new Thread(counter, "线程1");
+
+        t1.start();
+        t2.start();
+    }
 // 17. 计时等待Timed Waiting
 // 创建MyThread继承Thread，循环输出0~9。
 // 每输出一个数字后sleep(1000)，并捕获InterruptedException。
+   private static void demo17(){
+       Demo17MyThread d17t = new Demo17MyThread();
+       d17t.start();
+   }
 // 18. Waiting等待
 // 创建Object类型的共享锁对象和“等待线程”。
 // 等待线程获取锁后调用wait()进入无限等待，并在被唤醒后继续输出一条信息。
+static Object lock = new Object();
+    /*因为18,19要用同一个锁对象，所以一起定义在这个类里，锁作为这个类的成员，这样两个线程可以一起访问到*/
+
+    private static void demo18(){
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run(){
+//                synchronized (obj){
+//
+//                }
+//            }
+//        }, "无限等待线程");匿名内部类的写法不够好
+        Demo18MyThread d18t = new Demo18MyThread(lock, "demo18无限等待");
+        d18t.start();
+    }
 // 19. notify唤醒线程
 // 在上一题基础上创建“唤醒线程”，等待3秒后获取同一把锁。
 // 调用notify()唤醒等待线程，并输出唤醒提示。
+    private static void demo19(){
+        Demo19Thread d19t = new Demo19Thread(lock, "等3s后唤醒");
+        d19t.start();
+    }
 // 20. wait与notify协作
 // 创建两个线程模拟“生产者”和“消费者”：消费者没有数据时wait()。
 // 生产者生产数据后调用notify()，消费者被唤醒后继续执行。
+    Object lock20 = new Object();
+    static int count = 0;
+    static boolean running = true;
+    static int flag = 0;
+    private static void demo20(){
+        /*把这个要消费的消费品作为一个数字吧，取走以后就是0，生产了就是1,2之类的。
+        如果一直没被消费也在持续生产积累。用同一个锁*/
+
+        Thread pro = new Thread("线程1"){
+            @Override
+            public void run() {
+
+                while(running){
+                    synchronized (lock){
+                        count++;
+                        flag++;
+                        try{
+                            Thread.sleep(500);//等一下再生产，好看能不能让消费者和生产者交错进行
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                        lock.notify();
+                        System.out.println("生产者生产的count:" + count + "唤醒消费者");
+                    }
+
+                    if(flag >= 20){
+                        running = false;
+                    }
+                }
+
+            }
+        };
+        Thread con = new Thread("线程2"){
+            @Override
+            public void run() {
+                synchronized (lock){
+                    if(count == 0){//有一个问题开始设定的就是，如果没有生产资料，消费者要等待
+                        //但这样写，消费者根本无法被唤醒是因为什么？类似于生产了很多消费资料根本不会进入这层
+                        //为什么写到if之后也不会被唤醒呢？因为没休眠吗？
+                        try{
+                            lock.wait();
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("被唤醒了。开始消费");
+                    while(count > 0){
+                        System.out.println("消费：" + count--);
+                    }
+                }
+            }
+        };
+        /*又考虑到一个问题，两个线程需要共享count，也要共享锁。但执行的操作不同所以不能用同一个Runnable对象
+        * 所以count和lock都通过构造器传递吧，因为是自定义的线程类*/
+
+        /*重大问题 ● count 是一个 int。
+而 int 是基本数据类型，传给构造方法时是传值。改成Integer也不行，因为这是不可变的，修改的话又是创建一个新的引用
+只能继续之前的想法，就是在同一个类方法里匿名内部类两个线程*/
+//        Producer pro = new Producer(lock20, count);
+//        Consumer con = new Consumer(lock20, count);
+        pro.start();
+        con.start();//两个线程同时进行。什么时候停止？设置一个生产者累计生产了20个就停止，
+        // 消费者这边没等到唤醒就无限等待,生产者那边累计够了进入判断就不再生产
+        /*？疑问：线程还会存在吗？好像只是不进行什么有效操作而已，两个线程还都是存在的，没有被终止
+        * 没学到什么终止，run自然结束就是终止*/
+
+    }
 // 21. wait带参数
 // 创建线程获取共享锁后调用wait(3000)。
 // 3秒内没有被唤醒时自动继续执行，并输出线程恢复运行的提示。
+    private static void demo21(){
+        /*分析，这里不需要特殊的写，只要wait这种可以被提前唤醒的就行
+        * 要使用wait就一定有锁对象，就用同步代码块*/
+        /*谁来唤醒呢?再写一个唤醒的线程，两个线程使用同一个锁对象*/
+        Thread wait = new Thread(() -> {
+            synchronized (lock) {
+                try{
+                    lock.wait(3000);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+                System.out.println("3s睡醒了，恢复执行");
+            }
+        },"等3s线程");
+        Thread wake = new Thread(() -> {
+            synchronized (lock) {
+                lock.notify();
+                System.out.println("唤醒睡3s线程");
+            }
+        }, "唤醒线程");
+
+        wait.start();
+        wake.start();
+
+    }
 // 22. 查看线程状态
 // 创建一个Thread对象但不要立即调用start()。
 // 分别在创建线程后、线程启动后输出thread.getState()的结果。
+    private static void demo22(){
+        Thread t = new Thread("demo22线程");
+        System.out.println(t.getState());
+        t.start();
+        System.out.println(t.getState());
+    }
 // 23. 制造BLOCKED状态
 // 创建两个线程使用同一个锁对象。
 // 让线程A持有锁并sleep一段时间，同时让线程B尝试获取同一把锁。
+    private static void demo23(){
+        Object lock = new Object();
+        Thread A = new Thread(() -> {
+            synchronized(lock){
+                try{
+                     Thread.sleep(30000);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+                System.out.println("线程A睡醒了");
+            }
+
+        }, "线程A");//等于是重写了匿名Runnable实现类
+
+        Thread B = new Thread("线程B"){
+            @Override
+            public void run() {
+                synchronized(lock){
+                    System.out.println("B去获取锁");
+                    System.out.println(Thread.currentThread().getName() +
+                            "状态：" + Thread.currentThread().getState());
+                }
+            }
+
+        };
+    }
 // 24. 综合线程状态练习
 // 创建线程并依次让它经历新建、可运行、计时等待和终止等状态。
 // 在合适的时间输出thread.getState()观察状态变化。
+    private static void demo24(){
+        //终止就是自然结束了run方法执行完了，while(true)不会自然结束，
+        // 最好是用while(running)改变running为flase来终止程序
+        Thread A = new Thread(() -> {
+            for(int i = 0; i < 10; i++){
+                System.out.print(i + ",");
+            }
+            System.out.println("线程状态：" + Thread.currentThread().getState());
+
+            try{
+                Thread.sleep(5000);
+                System.out.println("线程状态：" + Thread.currentThread().getState());
+
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+            System.out.println("线程状态：" + Thread.currentThread().getState());
+
+        },"demo24线程");
+        System.out.println("线程状态：" + Thread.currentThread().getState());
+        A.start();
+    }
+
+    public static void main(String[] args) {
+//        demo01();
+//        demo02();
+//        demo03();
+//        demo04();
+//        demo05();
+//        demo06();
+//        demo07();
+//        demo08();
+//        demo09();
+//        demo10();
+//        demo11();
+//        demo12();
+//        demo13();
+//        demo14();
+//        demo15();
+//        demo16();
+//        demo17();
+
+//        demo18();
+//        demo19();
+
+        demo20();
+//        demo21();
+//        demo22();
+//        demo23();
+//        demo24();
+    }
+
 }
