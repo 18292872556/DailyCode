@@ -7,6 +7,7 @@ package Advanced.Day06_线程_同步.Review01_Aug23;
  * @Authur: xuexuezi
  * @Date: 2026/08/25/下午5:19
  * @Description:
+ * 暂时作废
  */
 public class Producer extends Thread {
      private Object lock;

@@ -7,6 +7,7 @@ package Advanced.Day06_线程_同步.Review01_Aug23;
  * @Authur: xuexuezi
  * @Date: 2026/08/25/下午5:28
  * @Description:
+ * 暂时不用了，作废
  */
 public class Consumer extends Thread {
     private int count = 0;
