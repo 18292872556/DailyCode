@@ -392,6 +392,7 @@ private static void demo01(){
 // 在注释中说明Lock需要显式加锁、释放锁，而synchronized由语法结构管理锁。
    // 就是把 synchronized { 共享数据操作 } 这种同步代码块，改写成 Lock.lock() +
 // try { 共享数据操作 } finally { Lock.unlock() }。
+    /*这题目没啥意义，直接改成包子铺和吃包子算了*/
     private static void demo18(){
         /*不懂啥意思，问了出题gpt给出了新的解释。就是要finally*/
         //因为上节20题的等待唤醒很费时间，写的很差。这里也不知道要写什么案例，所以这里复刻一次
@@ -406,11 +407,33 @@ private static void demo01(){
 //
 //        });
 
+        Demo18BaoZi bz = new Demo18BaoZi();
+        Demo18BaoZiPu baoZiPu = new Demo18BaoZiPu(bz);
+        Demo18ShiKe shiKe = new Demo18ShiKe(bz);
+        baoZiPu.start();
+        shiKe.start();
+
     }
 
 // 19. 观察NEW与RUNNABLE状态
 // 创建线程但先不要启动，输出它的状态；调用start()后再尝试观察状态。
 // 必要时在run()中加入sleep，让RUNNABLE状态更容易被观察。
+    private static void demo19(){
+        Thread t1 = new Thread(() -> {
+            for(int i = 0; i < 10; i++){
+                System.out.println(i);
+            }
+        }, "demo19线程1");
+        //不启动t1又要观察她的状态，只能用另一个线程来观察她的状态并输出
+        Thread t2 = new Thread(() -> {
+            while(true){
+                System.out.println("t1的状态 ：" + Thread.currentThread().getState());
+            }
+        }, "demo19线程2");
+        t2.start();
+        t1.start();
+
+    }
 
 // 20. 观察TIMED_WAITING状态
 // 创建一个线程，在run()中调用Thread.sleep(3000)。
@@ -475,4 +498,8 @@ private static void demo01(){
 // 35. 综合线程同步与状态
 // 两个线程竞争同一把锁：A持锁sleep，B等待锁；A释放锁后B继续执行。
 // 使用第三个线程观察B的状态变化，并写出B从RUNNABLE到BLOCKED再到RUNNABLE的原因。
+
+    public static void main(String[] args) {
+        demo18();
+    }
 }

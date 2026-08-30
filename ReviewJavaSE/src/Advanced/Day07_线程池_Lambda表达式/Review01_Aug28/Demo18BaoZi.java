@@ -11,10 +11,12 @@ package Advanced.Day07_线程池_Lambda表达式.Review01_Aug28;
 public class Demo18BaoZi {
     //String pi;
     String xian;
+    boolean flag = false;
 
     public Demo18BaoZi(String xian) {
 //        this.pi = pi;
         this.xian = xian;
     }
+    public Demo18BaoZi() {}
 
 }
