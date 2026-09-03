@@ -733,6 +733,7 @@ private static void demo01(){
 // 30. 生产者消费者基础模型
 // 用一个共享int表示生产资料数量：生产者不断增加，消费者没有资料时wait()。
 // 生产者生产后notify()，消费者被唤醒后消费资料，要求两个线程共享同一份数据。
+    static int num = 0;
     private static void demo30(){
         //共享int，两个线程共享同一份数据。int是值传递，
         // 如果定义成局部变量，无法将线程内部对值的修改传递回来
@@ -741,9 +742,33 @@ private static void demo01(){
         //线程就自定义用构造方法的参数来接收这个类对象或类的成员变量int
         //要么直接写在当前这个类里做成员变量，然后当前方法匿名内部类重写线程，也可以访问到这个变量
 
-        Thread A = new Thread(()->{
-            synchronized(obj){}
+        Thread pro = new Thread(()->{
+            for(int i = 0; i < 10; i++){
+                synchronized(obj){
+                    System.out.println("生产者生产第：" + ++num);
+                    obj.notify();
+                }
+            }
         });
+        Thread con = new Thread(()->{
+            while(true){
+                synchronized(obj){
+                    if(num == 0){
+                        try{
+                            obj.wait();
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }
+                    //开始消费
+                    System.out.println("消费者消费第:" + num--);
+                }
+            }
+
+        });
+
+        pro.start();
+        con.start();
     }
 
 // 31. 修正消费者的等待条件
