@@ -14,7 +14,7 @@ public class Demo06Runnable implements Runnable {
     @Override
     public void run(){
         while(count < 10){
-            System.out.println("count:" + count++);
+            System.out.println("count:" + ++count);
 
         }
     }

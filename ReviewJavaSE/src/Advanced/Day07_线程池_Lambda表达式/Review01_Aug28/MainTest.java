@@ -20,6 +20,8 @@ public class MainTest {
 // 01. 继承Thread创建线程
 // 自定义线程类，接收线程名称并重写run()。
 // 启动线程后输出线程名称和0~9，观察main线程与子线程的执行顺序。
+    /*第一次执行结果是先main的而且是全部执行完
+    * 第二次是交错输出*/
 private static void demo01(){
     Thread t1 = new Thread(() -> {
         for(int i = 0; i < 10; i++){
@@ -41,15 +43,20 @@ private static void demo01(){
 // 在线程中输出当前线程名称以及一段任务信息。
     private static void demo02(){
         Thread t1 = new Thread(() -> System.out.println("demo02的runnable重写run方法"), "demo02线程");
-    }
+        t1.start();
+}
 
 // 03. 验证start()与run()的区别
 // 创建一个线程对象，分别观察直接调用run()和调用start()时的执行效果。
 // 要求通过输出当前线程名称判断代码究竟由哪个线程执行。
-    /*这个还真不知道区别，课件里好像没讲*/
+    /*这个还真不知道区别，课件里好像没讲start和run的区别
+    * 看输出好像没什么区别*/
     private static void demo03(){
         Thread t1 = new Thread(() -> {
             System.out.println("demo03重写run的信线程,观察run和start方法区别");
+            /*只能通过输出当前线程名来区分区别,run是输出main，start输出才是demo03线程。
+            * 说明run只是作为一个普通方法被调用，没有创建线程*/
+            System.out.println(Thread.currentThread().getName());
         },"demo03线程");
 
         t1.run();
@@ -63,6 +70,10 @@ private static void demo01(){
         System.out.println("线程名称：" + Thread.currentThread().getName());
         System.out.println("线程对象：" + Thread.currentThread());
     }
+    //输出结果，直接输出线程对象，就是Thread[]的格式，括号里三个分别是线程名，优先级和线程所属的组
+    //其中优先级10最大最优先，最低1，一般都是5
+    //线程名称：main
+    //线程对象：Thread[main,5,main]
 
 // 05. 使用匿名内部类创建两个不同任务的线程
 // 不单独定义Runnable实现类，直接创建两个线程并分别指定不同任务。
@@ -89,13 +100,21 @@ private static void demo01(){
         t1.start();
         t2.start();
     }
+    /*这里写的是count < 10才++,如果是共同维护一个那不会超过10
+    * 因为没写同步，也就是可能超过10，但不会太多。不会到20，来验证他两在维护同一个数据
+    * 但跑了好几次都没有超过10，也没有重复+的情况，只是每次输出的顺序不同，思考为什么没有同步出错
+    * 比如t1对count读到是9，然后准备++被抢夺线程，然后t2读到发现是9,满足条件准备++结束是10，
+    * 然后回到t1，因为刚刚被抢的位置是count++，继续++应该就会是11，为什么这里没出过这种线程安全问题？
+    *
+    * 跑了好几次都没看出来问题，还以为没问题。所以是线程太短，操作没同步但也太短了，刚好没有被抢的分开过*/
 
 // 07. 验证sleep()作用于当前线程
 // 创建线程A，让A在执行过程中sleep 2秒；main线程不要sleep。
 // 输出A睡眠前后的信息，观察sleep期间main线程是否仍能继续执行。
+    /*验证了前后main都是RUNNABLE可运行状态*/
     private static void demo07(){
-        System.out.println(Thread.currentThread().getName());//输出main的状态
-        System.out.println(Thread.currentThread().getState());
+        System.out.println("main:" + Thread.currentThread().getName());//输出main的状态
+        System.out.println("main" + Thread.currentThread().getState());
 
         Thread A = new Thread(() -> {
             try{
@@ -106,8 +125,8 @@ private static void demo01(){
         },"线程A");
         A.start();
 
-        System.out.println(Thread.currentThread().getName());//输出main的状态
-        System.out.println(Thread.currentThread().getState());
+        System.out.println("main" + Thread.currentThread().getName());//输出main的状态
+        System.out.println("main" + Thread.currentThread().getState());
         /* ● 疑惑： 怎么获取到main的名字直接访问状态？万一此刻获取的线程不是main是A呢？*/
 
     }
@@ -115,25 +134,27 @@ private static void demo01(){
 // 08. 设计一个简单的“交错执行”效果
 // 创建两个线程分别循环输出A0~A9和B0~B9，并在循环中加入短暂sleep。
 // 不要求严格交替，只观察两个线程是否会出现交错执行。
+    /*不睡眠就不交替，睡眠了就交替*/
     private static void demo08(){
         Thread t1 = new Thread(() -> {
-            try{
-                Thread.sleep(3000);
-            }catch(InterruptedException e){
-                e.printStackTrace();
-            }
             for(int i = 0; i < 10; i++){
-                System.out.println('A' + i);
+                try{
+                    Thread.sleep(3000);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+                System.out.println("A" + i);//别写''会无法拼接，直接计算了
             }
         }, "demo08的A线程");
         Thread t2 = new Thread(() -> {
-            try{
-                Thread.sleep(3000);
-            }catch(InterruptedException e){
-                e.printStackTrace();
-            }
+
             for(int i = 0; i < 10; i++){
-                System.out.println('B' + i);
+                try{
+                    Thread.sleep(3000);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+                System.out.println("B" + i);
             }
         }, "demo08的B线程");
 
@@ -145,6 +166,7 @@ private static void demo01(){
 // 09. 制造线程安全问题
 // 使用一个Runnable对象保存100张票，创建三个窗口线程同时卖票。
 // 故意不加同步控制，观察是否可能出现重复售票或卖出不存在的票。
+    /*有重复的，还有不存在的0和-1*/
     private static void demo09(){
         Runnable runnable = new Demo09Runnable();
         Thread t1 = new Thread(runnable, "窗口1");
@@ -183,6 +205,13 @@ private static void demo01(){
         * 是不同的对象，所以操作也是独立进行，可以完成分别+1000的任务，而不是合在一起+1000次*/
         t1.start();
         t2.start();
+        //因为这里调试r1的count老是0，r2的老是2000。怀疑是检测的太早了count在线程里还没加完
+        //睡眠一下等两个线程走完，捕获到了1697
+        try{
+            Thread.sleep(3000);
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
         System.out.println("r1最终的count：" + r1.getCount());
         System.out.println("r2最终的count：" + r2.getCount());
 
@@ -200,14 +229,14 @@ private static void demo01(){
 //
 //        };哦不能这样写，因为有成员变量
         Runnable runnable = new Runnable(){
-            private int count = 20;
+            private int count = 100;
             Object lock = new Object();
             @Override
             public void run() {
                 synchronized(lock){
                     while(count > 0){
                         try{
-                            Thread.sleep(3000);//模拟出票时间3s
+                            Thread.sleep(1000);//模拟出票时间3s
                         }catch(InterruptedException e){
                             e.printStackTrace();
                         }
@@ -234,13 +263,13 @@ private static void demo01(){
         /*首先思考，怎么验证互斥执行，就是不会互相抢占？
         还是用count++来验证，一个+的时候另一个无法访问就无法拆分，可以正常的加够*/
         Runnable runnable = new Runnable(){
-            private int count = 0;
+            int count = 0;
             @Override
             public void run() {
                 synchronized(this){
                     for(int i = 0; i < 10; i++){
                         System.out.println(Thread.currentThread().getName() +
-                                "正在：" + count++);
+                                "的count：" + ++count);
                     }
                 }
             }
@@ -251,18 +280,28 @@ private static void demo01(){
 
         t1.start();
         t2.start();
+        //System.out.println("" + runnable.count);count无访问为什么
+        /*因为Runnable接口没有count，变量都看左*/
     }
 
 // 13. 观察不同锁对象的效果
 // 创建两个内容相同但不是同一个对象的锁，让两个线程分别使用它们同步。
 // 在同步代码块中sleep一段时间，观察两个线程是否仍可能同时执行。
     /*咋观察是不是同时执行呢？同步里写的循环输出，如果同时进行，
-    输出就是不是一次性循环完。而是中间被穿插另一个线程的输出。就这样验证吧*/
+    输出就是不是一次性循环完。而是中间被穿插另一个线程的输出。就这样验证吧
+    原来指的是不用同一个锁对象，那应该也可以互斥，因为要锁里的进行完，sleep也不会释放锁*/
+    static String str1 = new String("123");
+    static String str2 = new String("123");//这样的创建方式就不是同一个对象
     private static void demo13(){
         Runnable r1 = new Runnable() {
             @Override
             public void run() {
-                synchronized(this){
+                synchronized(str1){
+                    try{
+                        Thread.sleep(1000);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
                     for(int i = 0; i < 10; i++){
                         System.out.println(i);
                     }
@@ -273,7 +312,12 @@ private static void demo01(){
             Object lock = new Object();
             @Override
             public void run() {
-                synchronized(lock){
+                synchronized(str2){
+                    try{
+                        Thread.sleep(1000);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
                     for(int i = 0; i < 10; i++){
                         System.out.println(i);
                     }
@@ -292,24 +336,47 @@ private static void demo01(){
 // 创建多个线程调用该方法，验证实例方法隐含的锁对象是谁。
     private static int count = 0;
     private  static synchronized void counter(){
+        System.out.println(Thread.currentThread().getName() + "进入");
+        try{
+            Thread.sleep(1000);
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
         for(int i = 0; i < 10; i++){
             System.out.println(count++);//每个线程都分别+10次
         }
-        System.out.println("锁对象是：" + Thread.currentThread().getName());
+        //之前的写法错误判断，只能输出当前线程名
+        //要判断同步方法隐含的锁对象是不是this，可以写一个同步代码块锁对象为this，观察互斥和Bolcked情况
+
+
     }
     private static void demo14(){
         /*咋验证实力方法隐含的锁对象？一般实例同步方法的锁就是类对象本身this，
         static类型的锁对象就是类名.class。到时候输出一下正在运行的线程名就行*/
-        Runnable r1 = new Runnable() {
+        Runnable r1 = () ->{
+            counter();
+        };
+        Runnable r2 = new Runnable() {
             @Override
             public void run() {
-                counter();
+                synchronized(this){
+                    System.out.println("同步代码块获取到this锁：");
+                }
             }
+
         };
 
         Thread t1 = new Thread(r1, "demo14线程1");
         Thread t2 = new Thread(r1, "demo14线程2");
         Thread t3 = new Thread(r1, "demo14线程3");
+        Thread t4 = new Thread(r2, "demo14线程4");
+        t1.start();
+        t4.start();
+        System.out.println("同步代码块状态：" + t4.getState());
+        System.out.println("同步方法状态：" + t1.getState());//只要有一个BLOCKED就说明同步方法用的是this作为锁对象
+        //也是成功捕获到了！
+//        t2.start();
+//        t3.start();
     }
 
 // 15. 使用static synchronized方法
@@ -321,17 +388,31 @@ private static void demo01(){
         for(int i = 0; i < 10; i++){
             System.out.println(flag++);
         }
-        System.out.println("锁对象：" + Thread.currentThread().getName());
+        //和上一个一样，也是错误判断，正确判断是用同步代码块带着锁互斥
+        //System.out.println("锁对象：" + Thread.currentThread().getName());
     }
     private static void demo15(){
         Runnable runnable = () -> flager();
         Thread t1 = new Thread(runnable, "demo15线程1");
         Thread t2 = new Thread(runnable, "demo15线程2");
         Thread t3 = new Thread(runnable, "demo15线程3");
-
+        Thread t4 = new Thread(){
+            @Override
+            public void run(){
+                synchronized(MainTest.class){
+                    try{
+                        Thread.sleep(1000);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                    System.out.println("同步代码块获取锁");
+                }
+            }
+        };
         t1.start();
-        t2.start();
-        t3.start();
+        t4.start();
+//        t2.start();
+//        t3.start();
     }
 
 // 16. 对比实例同步方法与静态同步方法
@@ -792,6 +873,22 @@ private static void demo01(){
 // 使用第三个线程观察B的状态变化，并写出B从RUNNABLE到BLOCKED再到RUNNABLE的原因。
 
     public static void main(String[] args) {
-        demo18();
+//        demo01();
+//        demo02();
+//        demo03();
+//        demo04();
+//        demo05();
+//        demo06();
+//        demo07();
+//        demo08();
+//        demo09();
+//        demo10();
+
+//        demo11();
+//        demo12();
+//        demo13();
+//        demo14();
+        demo15();
+//        demo18();
     }
 }
