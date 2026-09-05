@@ -399,33 +399,56 @@ private static void demo01(){
         Thread t4 = new Thread(){
             @Override
             public void run(){
-                synchronized(MainTest.class){
-                    try{
-                        Thread.sleep(1000);
-                    }catch(InterruptedException e){
-                        e.printStackTrace();
+                for(int j = 0; j < 10; j++){
+                    synchronized(MainTest.class){
+//                    try{
+//                        Thread.sleep(1000);
+//                    }catch(InterruptedException e){
+//                        e.printStackTrace();
+//                    }
+                        System.out.println("同步代码块获取锁");
+                        for(int i = 0; i < 10; i++){
+                            System.out.println(flag++);
+                        }
                     }
-                    System.out.println("同步代码块获取锁");
                 }
+
             }
         };
+
         t1.start();
+        t2.start();
         t4.start();
-//        t2.start();
+        //获取到同步代码块（MainTest.class)的状态： BLOCKED
+        //说明另外两个线程用的锁对象就是MainTest.class
+        //静态同步方法的状态：RUNNABLE
+
+
+        System.out.println("静态同步方法的状态：" + t1.getState());
+        System.out.println("同步代码块（MainTest.class)的状态：" + t4.getState());
 //        t3.start();
     }
 
 // 16. 对比实例同步方法与静态同步方法
 // 分别创建实例同步方法和static同步方法，并让线程同时调用。
 // 通过注释说明两者的锁对象分别是什么，并判断两者是否使用同一把锁。
+    /*前面两道已经验证过了，同步方法的锁对象是this对象，静态同步方法的锁对象是类名.class
+    * 怎么用代码判断两者是否使用同一把锁？得看一个走的时候另一个是不是会BLOCKED
+    * 但这道题的要求是要线程同时调用这两个方法，就无法判断方法的状态，不懂这题这句啥意思
+    * 又是出的不严谨吧?或者把两个方法写到不同的对象里，然后判断是不是有阻塞的情况？
+    * 但阻塞的状态又不一定百分百捕捉到，算了反正已经知道了就不写了*/
     private synchronized static void syn01(){
         /*static的锁对象是类名.class*/
-        System.out.println("static同步方法的锁对象是：" + Thread.currentThread().getName());
+        //System.out.println("static同步方法的锁对象是：" + Thread.currentThread().getName());
+        //错误写法
+
+        System.out.println("静态同步方法");
     }
     private synchronized  void syn02(){
         /*实例方法的锁对象是 this 就是new MainTest()*/
-        System.out.println("static同步方法的锁对象是：" + Thread.currentThread().getName());
-
+        //System.out.println("static同步方法的锁对象是：" + Thread.currentThread().getName());
+        //错误判断
+        System.out.println("同步方法");
     }
     private static void demo16(){
         Runnable runnable = () -> {
@@ -441,11 +464,14 @@ private static void demo01(){
 // 使用ReentrantLock保护共享票数，多个线程共同卖票。
 // 要求正确调用lock()和unlock()，观察加锁后的执行效果。
     private static void demo17(){
+        ReentrantLock lock = new ReentrantLock();//一定记得写线程外面
         Runnable runnable = new Runnable() {
             int count = 20;
             @Override
             public void run() {
-                ReentrantLock lock = new ReentrantLock();
+                //ReentrantLock lock = new ReentrantLock();
+                //锁对象写在这个位置的话，多个线程之间无法共享
+                //因为每个线程都会创建一个独立的锁对象
                 lock.lock();
                 while(count > 0){
                     try{
@@ -500,19 +526,21 @@ private static void demo01(){
 // 创建线程但先不要启动，输出它的状态；调用start()后再尝试观察状态。
 // 必要时在run()中加入sleep，让RUNNABLE状态更容易被观察。
     private static void demo19(){
+
+        Thread t2 = new Thread(() -> {
+            for(int i = 0; i < 10; i++){
+                System.out.println("t1的状态 ：" + Thread.currentThread().getState());
+            }
+        }, "demo19线程2");
         Thread t1 = new Thread(() -> {
             for(int i = 0; i < 10; i++){
                 System.out.println(i);
             }
         }, "demo19线程1");
         //不启动t1又要观察她的状态，只能用另一个线程来观察她的状态并输出
-        Thread t2 = new Thread(() -> {
-            while(true){
-                System.out.println("t1的状态 ：" + Thread.currentThread().getState());
-            }
-        }, "demo19线程2");
         t2.start();
         t1.start();
+        //调试，捕获不到new一直是runnable
     }
 
 // 20. 观察TIMED_WAITING状态
@@ -527,7 +555,7 @@ private static void demo01(){
             }
         }, "线程1");
         Thread t2 = new Thread(() -> {
-            while(true){
+            for(int i = 0; i < 10; i++){
                 System.out.println("demo20t1的状态：" + t1.getState());
             }
         }, "线程2");
@@ -888,7 +916,13 @@ private static void demo01(){
 //        demo12();
 //        demo13();
 //        demo14();
-        demo15();
+//        demo15();
+//        demo16();
+//        demo17();
 //        demo18();
+//        demo19();
+//        demo20();
+
+        demo21();
     }
 }
