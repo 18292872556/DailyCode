@@ -527,25 +527,29 @@ private static void demo01(){
 // 必要时在run()中加入sleep，让RUNNABLE状态更容易被观察。
     private static void demo19(){
 
-        Thread t2 = new Thread(() -> {
-            for(int i = 0; i < 10; i++){
-                System.out.println("t1的状态 ：" + Thread.currentThread().getState());
-            }
-        }, "demo19线程2");
+//        Thread t2 = new Thread(() -> {
+//            for(int i = 0; i < 10; i++){
+//                System.out.println("t1的状态 ：" + Thread.currentThread().getState());
+//            }
+//        }, "demo19线程2");
         Thread t1 = new Thread(() -> {
             for(int i = 0; i < 10; i++){
                 System.out.println(i);
             }
         }, "demo19线程1");
-        //不启动t1又要观察她的状态，只能用另一个线程来观察她的状态并输出
-        t2.start();
+        //不启动t1的情况下，又要观察她的状态，只能用另一个线程来观察她的状态并输出
+//        t2.start();
+        System.out.println("t1启动前状态：" + t1.getState());
         t1.start();
+        System.out.println("t1启动后状态：" + t1.getState());
+
         //调试，捕获不到new一直是runnable
     }
 
 // 20. 观察TIMED_WAITING状态
 // 创建一个线程，在run()中调用Thread.sleep(3000)。
 // 使用另一个线程持续观察目标线程状态，记录其进入TIMED_WAITING以及之后恢复的状态。
+    /*什么叫之后恢复的状态，恢复什么？终止了恢复什么*/
     private static void demo20(){
         Thread t1 = new Thread(() -> {
             try{
@@ -586,15 +590,21 @@ private static void demo01(){
 
         Thread C = new Thread(()->{
             long begin = System.currentTimeMillis();
+            //优化了观察时间，还要优化输出不重复
+            Thread.State lastState = null;
             while(true){
-                System.out.println("B的状态：" + B.getState());
+                Thread.State state = B.getState();
+                if(state != lastState){
+                    System.out.println("B的状态：" + state);
+                    lastState = state;
+                }
                 long end = System.currentTimeMillis();
-                if(end - begin > 5000){
+                if(end - begin > 500){
                     break;
                 }
             }//因为只想输入一段时间不想一直无限循环，考虑有没有计时器类似的写法
 
-        }, "C");
+        }, "C，观察B的线程");
 
         C.start();
         A.start();
