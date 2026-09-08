@@ -614,7 +614,8 @@ private static void demo01(){
 // 22. 理解sleep与锁的关系
 // 让线程A在synchronized代码块中sleep 3秒，同时让线程B尝试获取同一把锁。
 // 观察A睡眠时是否仍然持有锁，并记录B的状态变化。
-    /*怎么观察A睡眠时是否仍然持有锁？同时检测他两的状态*/
+    /*怎么观察A睡眠时是否仍然持有锁？同时检测他两的状态,B获取不到就说明A还持有锁
+    * 也就是也要捕获到B的BLOCKED状态*/
     private static void demo22(){
         Thread A = new Thread(()->{
             synchronized(obj){
@@ -633,17 +634,40 @@ private static void demo01(){
         }, "线程B");
 
         Thread C = new Thread(()->{
-            long begin = System.currentTimeMillis();
-            while(true){
-                System.out.println("A的状态：" + A.getState());
-                System.out.println("B的状态：" + B.getState());
-                long end = System.currentTimeMillis();
-                if(end - begin > 5000){
-                    break;
+            long end = System.currentTimeMillis() + 3000;
+            Thread.State AlastState = null;
+            Thread.State BlastState = null;
+            while(System.currentTimeMillis() < end){
+//                System.out.println("A的状态：" + A.getState());
+//                System.out.println("B的状态：" + B.getState());
+                Thread.State state = A.getState();
+                Thread.State state2 = B.getState();
+                if(state != AlastState){
+                    System.out.println("A的状态" + state);
+                    AlastState = state;
                 }
+                if(state2 != BlastState){
+                    System.out.println("B的状态" + state2);
+                    BlastState = state2;
+                }
+//                long time = System.currentTimeMillis();
+//                if(end - begin > 500){
+//                    break;
+//                }
             }
 
         }, "线程C");
+
+        A.start();
+        B.start();
+        C.start();
+        //结果：
+        //A的状态TIMED_WAITING
+        //B的状态BLOCKED
+        //A睡醒了
+        //B获取到锁
+        //疑惑为什么A会先TIMED_WAITING然后又睡醒？难道
+        //哦哦是计时等待不是结束，正确的
 
     }
 
@@ -933,6 +957,9 @@ private static void demo01(){
 //        demo19();
 //        demo20();
 
-        demo21();
+//        demo21();
+        demo22();
+//        demo23();
+//        demo24();
     }
 }
