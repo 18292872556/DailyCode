@@ -696,11 +696,23 @@ private static void demo01(){
 // 24. 使用notify()唤醒等待线程
 // 在上一题基础上，让线程B获取同一把锁后调用notify()。
 // 观察A被唤醒后的状态以及它是否会立即继续执行。
-    /*怎么叫被唤醒后是否会立即执行，这怎么观察得到啊？只能debug调试还是根据输出判断？*/
+    /*怎么叫被唤醒后是否会立即执行，这怎么观察得到啊？只能debug调试还是根据输出判断？
+    * 首先A在wait期间是一个WAITING状态，被唤醒但没有立刻执行的话就会出现BLOCKED状态
+    * 捕获到即可*/
+    //A会立刻获取到锁，因为B线程只有notify操作，等于把A唤醒的同时，B就结束了。
+    //所以A不会被阻塞，为了观察这一现象。人为的让B唤醒A以后，继续执行其他操作例如输出循环
     private static void demo24(){
         //或者就让C线程不跟A,B用同一把锁。然后一直观察A的状态，循环重复输出A的状态
         //如果A被唤醒了，那就是从Waiting到RUN或者BLOCKED,如果能检测到A有BLOCKED状态
         //说明没有立刻执行，因为没有立刻获取到锁
+        //很奇怪，B的操作在同步代码块里，按理来说是可以捕获到A的，
+        // 难道是因为线程C有输出操作没有精准捕获到A阻塞的那一秒吗？
+        //只能在B的同步代码块中，唤醒A以后多睡眠一会强制让A阻塞看看，验证
+        //yes!yes,非常成功
+        //A的状态：RUNNABLE
+        //A的状态：BLOCKED
+        //A的状态：RUNNABLE
+        //A的状态：TERMINATED
         Thread A  = new Thread(()->{
             synchronized(obj){
                 try{
@@ -714,6 +726,14 @@ private static void demo01(){
         Thread B = new Thread(()->{
             synchronized(obj){
                 obj.notify();
+//                for(int i = 0; i < 10; i++){
+//                    System.out.println(i);
+//                }
+                try{
+                    Thread.sleep(3000);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -724,16 +744,22 @@ private static void demo01(){
             while(System.currentTimeMillis() < end){
                 Thread.State currentState = A.getState();
                 if(currentState != lastState){
-                    System.out.println("A的状态：" + A.getState());
+                    System.out.println("A的状态：" + currentState);
                     lastState = currentState;
                 }
             }
 
         });
+
+        C.start();
+        A.start();
+        B.start();
+
     }
 // 25. 理解wait()会释放锁
 // 让线程A获取锁后调用wait()，让线程B随后尝试进入同一个同步代码块。
 // 通过输出证明A进入WAITING后，B可以获得原本由A持有的锁。
+    /*在B里输出A的WAITING状态*/
     private static void demo25(){
         Thread A = new Thread(()->{
             synchronized(obj){
@@ -743,27 +769,32 @@ private static void demo01(){
                 }catch(InterruptedException e){
                     e.printStackTrace();
                 }
-                System.out.println("A被唤醒");
+                System.out.println("A睡中被唤醒");
             }
         });
         //思考这个唤醒怎么写，首先，等待和唤醒都是在同步代码块中的写法
         //因为等待和唤醒的都是同步中的交互。那有个问题一直没获取到锁的话就无法进入同步代码块
-        //又怎么样才能执行唤醒操作呢，wait会释放锁，不像sleep
+        //又怎么样才能执行唤醒操作呢，重点原因！->wait会释放锁，不像sleep
         Thread B = new Thread(()->{
             synchronized(obj){
-                System.out.println("B获取到锁");
-                if(A.getState() != Thread.State.WAITING){
-                    obj.notify();
-                    System.out.println("B唤醒A,也说明A在WAITING状态，B是能获取到锁的。wait()会释放锁对象");
-                }
+                System.out.println("B获取到锁并且A的状态是：" + A.getState());
+//                if(A.getState() != Thread.State.WAITING){
+//                    obj.notify();
+//                    System.out.println("B唤醒A,也说明A在WAITING状态，B是能获取到锁的。wait()会释放锁对象");
+//                }
+
             }
         });
+
+        A.start();
+        B.start();
     }
 
 // 26. 理解被notify后的重新竞争
 // 让A调用wait()进入等待，B调用notify()后继续持有锁一段时间。
 // 观察A被通知后是否能够立刻执行，记录A可能经历的状态变化。
-    /*A当然不能立即执行，而是BLOCKED阻塞状态，等待B线程同步代码块执行完成才能获得锁*/
+    /*A当然不能立即执行，而是BLOCKED阻塞状态，因为B在同步代码块中，还在持有锁
+    ，等待B线程同步代码块执行完成才能获得锁*/
     private static void demo26(){
         Thread A = new Thread(()->{
             synchronized(obj){
@@ -773,7 +804,7 @@ private static void demo01(){
                     e.printStackTrace();
                 }
             }
-        });
+        }, "demo26-A线程");
 
         Thread B = new Thread(()->{
             synchronized(obj){
@@ -785,6 +816,8 @@ private static void demo01(){
                 }
             }
         });
+        A.start();
+        B.start();
 
         threadTrace(A);
     }
@@ -824,6 +857,7 @@ private static void demo01(){
 // 28. 比较wait()与wait(long)
 // 分别让两个线程调用wait()和wait(3000)，观察它们进入的状态。
 // 思考为什么一个可以自动结束等待，而另一个必须依赖通知。
+
     private static void demo28(){
         /*因为一个是无限等待，只能唤醒。一个是计时等待，没有唤醒。自己也能醒*/
         Thread t1 = new Thread(()->{
@@ -854,6 +888,7 @@ private static void demo01(){
 // 29. 验证wait(long)可以提前结束
 // 让线程A调用wait(5000)，线程B在较短时间后调用notify()。
 // 观察A是否一定等待满5秒，并正确描述“等待结束”的原因。
+    /*因为在自然睡醒之前被唤醒了*/
     private static void demo29(){
         Thread A = new Thread(()->{
             synchronized(obj){
@@ -869,9 +904,16 @@ private static void demo01(){
         });
         Thread B = new Thread(()->{
             synchronized(obj){
+                try{
+                    Thread.sleep(2000);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
                 obj.notify();
             }
         });
+        A.start();
+        B.start();
     }
 // 30. 生产者消费者基础模型
 // 用一个共享int表示生产资料数量：生产者不断增加，消费者没有资料时wait()。
@@ -888,6 +930,12 @@ private static void demo01(){
         Thread pro = new Thread(()->{
             for(int i = 0; i < 10; i++){
                 synchronized(obj){
+                    //没有看到交错运行的效果，所以等一下
+                    try{
+                        Thread.sleep(1000);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
                     System.out.println("生产者生产第：" + ++num);
                     obj.notify();
                 }
@@ -917,6 +965,9 @@ private static void demo01(){
 // 31. 修正消费者的等待条件
 // 在生产者消费者模型中，消费者不能只使用if判断一次是否有数据。
 // 使用while重新检查条件，避免被唤醒后条件已经不满足仍继续消费。
+    private static void demo31(){
+
+    }
 
 // 32. 设计生产结束条件
 // 生产者累计生产指定数量后自然结束，消费者在没有资料且生产已经结束时也应退出。
@@ -958,8 +1009,14 @@ private static void demo01(){
 //        demo20();
 
 //        demo21();
-        demo22();
+//        demo22();
 //        demo23();
 //        demo24();
+//        demo25();
+//        demo26();
+//        demo27();
+//        demo28();
+//        demo29();
+        demo30();
     }
 }
