@@ -1,6 +1,8 @@
 package Advanced.Day07_线程池_Lambda表达式.Review01_Aug28;
 
 
+import com.sun.security.jgss.GSSUtil;
+
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -965,25 +967,251 @@ private static void demo01(){
 // 31. 修正消费者的等待条件
 // 在生产者消费者模型中，消费者不能只使用if判断一次是否有数据。
 // 使用while重新检查条件，避免被唤醒后条件已经不满足仍继续消费。
+    /*这段题目要求是什么意思？
+    * if换成while能理解，因为以防开始没有资源可消耗，线程进行时又有资源可以消耗的情况
+    * 需要反复判断，不能if只判断一次。会错失后续有资源的情况
+    *
+    * 消费者避免被唤醒后条件已经不满足仍然继续消费？啥意思，
+    * 先分析消费者和生产者模型，同步代码块中进行wait和notify
+    * wait会在同步块中让出同步锁，消费者如果被唤醒，就是在之前wait后的位置开始继续运行
+    * 被唤醒后，条件已不满足？不存在这种情况，while,if都不能避免这种情况
+    * 这种情况需要在另一个线程唤醒自己的地方做判断，或者wait这种暂停在while体之外
+    *
+    * nonono完全理解错意思了，意思是在while中wait让出锁对象以后
+    * 等到再次被唤醒，还在while里的wait后，继续运行会进入下一次的循环判断
+    * */
+    static int count31 = 0;
     private static void demo31(){
+        Thread producer = new Thread(){
+            @Override
+            public void run(){
+                synchronized(obj){
+//                    while(count != 0){//有资料就不生产
+                    for(int i = 0; i < 10; i++){
+//                        try{
+////                            obj.wait();//这里要求被唤醒了睡完了，再进来还得再判断？
+//                            //那就得判断条件在wait之后？
+////                            while(count31){
+////
+////                            }
+//                        }catch(InterruptedException e){
+//                            e.printStackTrace();
+//                        }
+                        System.out.println("生产：" + ++count31);
+                        obj.notify();
+                    }
+//                    }
 
+                }
+            }
+
+        };
+        Thread consumer = new Thread(){
+            @Override
+            public void run(){
+                synchronized(obj){
+                    while(count31 == 0){
+                        try{
+                            obj.wait();
+                        }catch(InterruptedException e ){
+                            e.printStackTrace();
+                        }
+                    }
+                    while(count31 != 0){
+                        System.out.println("消费者消费：" + count31--);
+
+                    }
+
+                }
+            }
+        };
+
+        producer.start();
+        consumer.start();
     }
 
 // 32. 设计生产结束条件
 // 生产者累计生产指定数量后自然结束，消费者在没有资料且生产已经结束时也应退出。
 // 要求增加一个“生产是否结束”的共享状态，并通过锁保证判断和修改安全。
+    /*思考一个问题，生产是否结束，作为一个共享状态，要求生产者累计生产指定数量后自然结束。
+    * 那这个生产结束的状态影响到还没消费完的消费者怎么办？
+    * 这一节的题目都出的很奇怪感觉很不合理，或者说描述不清晰有歧义
+    * 我知道了，应该是一个或者的关系，判断生产者的状态是否结束且没有生产资料了就结束消费者*/
+    static int info = 0;
+    static boolean statu = true;
+    private static void demo32(){
+        Thread pro = new Thread(()->{
+            synchronized(obj){
+                int count = 0;//统计生产次数，大于10停止
+                while(statu){
+                    try{//想让生产者和消费者尽量交替进行
+                        obj.wait(50);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                    System.out.println("生产：" + ++info);
+                    obj.notify();
+
+                    if(++count == 10){
+                        statu = false;
+                    }
+                }
+            }
+        });
+
+        Thread con = new Thread(()->{
+            synchronized(obj){
+                while(statu == true || info != 0){//生产状态判断是否结束，一个是根据生产状态的资源共享
+                    if(info == 0){
+                        try{
+                            obj.wait();
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("消费： " + info--);
+
+                }
+                //自然结束
+            }
+        });
+
+        pro.start();
+        con.start();
+    }
 
 // 33. 综合观察线程状态
 // 设计程序观察目标线程经历NEW、RUNNABLE、TIMED_WAITING、BLOCKED、WAITING等状态。
 // 使用其他线程观察目标线程，并在注释中写出每种状态产生的原因。
+    private static void demo33(){
+        Thread A = new Thread(() -> {
+            System.out.println("线程：" + Thread.currentThread().getName() );
+            //RUNNABLE
+            synchronized(obj){//锁被抢就BLOCKED
+                try{
+                    obj.wait(1000);//TIMED_WAITING产生原因
+                    obj.wait();//WAITING
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        }, "A");
+//        Thread C = new Thread(() ->{
+//            synchronized(obj){
+//                try{
+//                    Thread.sleep(1000);
+//                }catch(InterruptedException e){
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+
+
+        Thread B = new Thread(() -> {
+            long end = System.currentTimeMillis() + 10000;
+            Thread.State lastState = null;
+            while(System.currentTimeMillis() < end){
+                Thread.State state = A.getState();
+                if(state != lastState){
+                    System.out.println("A线程的状态：" + state);
+                    lastState = state;
+                }
+            }
+
+        }, "B");
+
+        //安排一个线程和A抢锁
+        Thread C = new Thread(() -> {
+            synchronized(obj){
+                System.out.println("负责抢A的锁");
+                try{
+                    Thread.sleep(1000);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        B.start();//观察A的状态
+        C.start();//和A抢锁
+        try{
+            Thread.sleep(100);//稍微停一下，不然捕获不到A的NEW状态
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
+        A.start();
+
+
+    }
 
 // 34. 判断线程何时真正终止
 // 创建一个执行完run()后自然结束的线程，使用另一个线程观察其状态。
 // 输出TERMINATED并说明“线程终止”与“线程对象仍然存在”之间的区别。
+    private static void demo34(){
+        Thread A = new Thread(()->{
+            for(int i = 0; i <10; i++){
+                System.out.println(i);
+            }
+        });
+        Thread B = new Thread(()->{
+            long end = System.currentTimeMillis() + 10000;
+            Thread.State lastState = null;
+            while(System.currentTimeMillis() < end){
+                Thread.State state = A.getState();
+                if(lastState != state){
+                    System.out.println("A线程的状态：" + state);
+                    lastState = state;
+                }
+
+            }
+        });
+        A.start();
+        B.start();
+        /*TERMINATED线程终止就是线程运行结束了，线程对象存在指的是线程对象创建了但不一定开始运行了*/
+    }
+    /*准确的表达：
+    * 线程终止： 指线程的执行生命周期结束，不再执行任务
+    * Thread对象:是用于表示和操作该线程的普通Java对象,线程终止后对象仍可能存在，只要还有引用指向他
+    * ，就可以继续访问其状态等信息*/
 
 // 35. 综合线程同步与状态
 // 两个线程竞争同一把锁：A持锁sleep，B等待锁；A释放锁后B继续执行。
 // 使用第三个线程观察B的状态变化，并写出B从RUNNABLE到BLOCKED再到RUNNABLE的原因。
+    /*原因：线程刚启动就是可运行的RUNNABLE状态
+    * 没拿到锁，等待锁对象就是BLOCKED状态
+    * A运行完释放锁，B拿到了就是RUNNABLE
+    * B的run执行完了就是TERMINATED*/
+    private static void demo35(){
+        Thread A = new Thread(()->{
+            synchronized(obj){
+                try{
+                    Thread.sleep(1000);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        Thread B = new Thread(()->{
+            synchronized(obj){
+                System.out.println("B得到锁");
+            }
+        });
+        Thread C = new Thread(()->{
+            long end = System.currentTimeMillis() + 10000;
+            Thread.State lastState = null;
+            while(System.currentTimeMillis() < end){
+                Thread.State state = B.getState();
+                if(state != lastState){
+                    System.out.println("B的状态： " + state);
+                    lastState = state;
+                }
+            }
+        });
+
+        C.start();
+        A.start();
+        B.start();
+    }
 
     public static void main(String[] args) {
 //        demo01();
@@ -1017,6 +1245,11 @@ private static void demo01(){
 //        demo27();
 //        demo28();
 //        demo29();
-        demo30();
+//        demo30();
+//        demo31();
+//        demo32();
+//        demo33();
+//        demo34();
+        demo35();
     }
 }
