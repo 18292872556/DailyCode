@@ -1213,6 +1213,9 @@ private static void demo01(){
         B.start();
     }
 
+    //因为gpt没出线程池的题，我根据课件出一下吧
+    //36.
+
     public static void main(String[] args) {
 //        demo01();
 //        demo02();
