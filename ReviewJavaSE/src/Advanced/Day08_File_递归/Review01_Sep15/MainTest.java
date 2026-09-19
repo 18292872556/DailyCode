@@ -1,5 +1,5 @@
 package Advanced.Day08_File_递归.Review01_Sep15;
-
+import java.io.File;
 /**
  * Created with IntelliJ IDEA 2024.1.4.
  * jdk 17.0.12
@@ -15,20 +15,58 @@ public class MainTest {
 // 01【File对象创建】
 // 分别使用 String 路径、父路径+子路径、父File对象+子路径创建3个File对象。
 // 路径可使用项目目录下的测试文件或目录。
+    private static void demo01(){
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15" +
+                "demo01");
+        File f2 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15" +
+                "demo01.txt", "a.txt");
+        File f3 = new File(f1, "b.txt");
+
+    }
 
 
 
 // 02【File路径信息】
 // 创建一个File对象，分别输出它的绝对路径、构造时使用的路径、名称。
 // 要求分别使用 getAbsolutePath()、getPath()、getName()。
+    private static void demo02(){
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/" +
+                "demo02.txt");
+
+        System.out.println("f1绝对路径：" + f1.getAbsolutePath());
+        System.out.println("f1构造时候的相对路径：" + f1.getPath());
+        System.out.println("f1名称:" + f1.getName());
+
+
+    }
 
 // 03【文件长度与类型】
 // 创建一个指向实际文件的File对象，输出文件大小，并判断它是否存在、是否为文件。
 // 再创建一个实际目录进行同样的存在性和类型判断。
+    private static void demo03(){
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15" +
+                "MainTest.java");//本文件
+        System.out.println("f1是否存在：" + f1.exists());
+        System.out.println("f1文件大小：" + f1.length());
+        System.out.println("f1是否为文件：" + f1.isFile());
+
+        File dir1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15" +);
+        //本目录
+        System.out.println("dir1是否存在：" + dir1.exists());
+        System.out.println("dir1文件大小：" + dir1.length());
+        System.out.println("dir是否为目录" + dir1.isDirectory());
+
+    }
 
 // 04【相对路径与绝对路径】
 // 分别使用一个绝对路径和一个相对路径创建File对象。
 // 输出二者的绝对路径，观察相对路径最终对应到项目目录下的什么位置。
+    private static void demo04(){
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15");
+        File f2 = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归\\Review01_Sep15");
+        System.out.println("相对路径的f1的绝对路径：" + f1.getAbsolutePath());
+        System.out.println("绝对路径的f2的绝对路径：" + f2.getAbsolutePath());
+    }
 
 // 05【创建文件】
 // 创建一个File对象指向项目目录下不存在的txt文件。
