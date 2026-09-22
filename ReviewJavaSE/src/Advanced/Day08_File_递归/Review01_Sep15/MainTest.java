@@ -1,5 +1,8 @@
 package Advanced.Day08_File_递归.Review01_Sep15;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 /**
  * Created with IntelliJ IDEA 2024.1.4.
  * jdk 17.0.12
@@ -71,22 +74,104 @@ public class MainTest {
 // 05【创建文件】
 // 创建一个File对象指向项目目录下不存在的txt文件。
 // 使用 createNewFile() 创建它，并分别输出创建前后 exists() 的结果。
+    private static void demo05(){
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo04.txt");
+        System.out.println("demo04.txt是否存在：" + f1.exists());
+        try{
+            f1.createNewFile();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        System.out.println("demo04.txt是否存在：" + f1.exists());
+    }
 
 // 06【创建目录】
 // 分别使用 mkdir() 和 mkdirs() 创建目录。
 // 要求通过实际运行验证：mkdir() 与 mkdirs() 在创建多级目录时有什么区别。
+    private static void demo06(){
+//        File dir1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo06.txt");
+        File dir1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo06/demo06.txt");
+        File dir2 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo06/A/demo06.txt");
+        System.out.println("mkdir创建两层目录：" + dir1.mkdir());
+        System.out.println("mkdirs创建两层目录：" + dir1.mkdirs());
+        System.out.println("mkdirs创建三层目录：" + dir2.mkdirs());
+
+    }
 
 // 07【删除文件和目录】
 // 创建一个测试文件和一个空目录并删除它们。
 // 再创建一个包含文件的目录，尝试删除该目录，观察 delete() 的结果。
+    private static void demo07(){
+        /*delete删目录的时候只能删除空目录*/
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo07/demo07.txt");
+        File dir1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo07");
+        dir1.mkdirs();
+        try{
+            f1.createNewFile();
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        System.out.println("删目录（非空）：" + dir1.delete());
+        System.out.println("删文件：" + f1.delete());
+        System.out.println("删目录（空）：" + dir1.delete());
+    }
 
 // 08【遍历目录】
 // 创建一个实际存在的测试目录，使用 list() 遍历并输出其中所有子文件和子目录的名称。
 // 再使用 listFiles() 遍历并输出每个File对象。
+    private static void demo08(){
+        File dir1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo08/A/txt");
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo08/B.txt");
+        File f2 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo08/C.txt");
+        File f3 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo08/D.txt");
+        dir1.mkdirs();
+        try{
+            f1.createNewFile();
+            f2.createNewFile();
+            f3.createNewFile();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        System.out.println("FileList遍历");
+        for(File f : dir1.listFiles()){
+            System.out.println(f);
+        }
+        System.out.println("StringList遍历");
+        for(String f : f1.list()){
+            System.out.println(f);
+        }
+
+    }
 
 // 09【listFiles判断】
 // 编写代码遍历一个目录中的所有File对象。
 // 根据 isFile() 和 isDirectory() 分别输出“文件”和“目录”。
+    private static void demo09(){
+        //就遍历上一个的吧
+        File dir1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo09/A/txt");
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo09/B.txt");
+        File f2 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo09/C.txt");
+        File f3 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15/demo09/D.txt");
+        dir1.mkdirs();
+        try{
+            f1.createNewFile();
+            f2.createNewFile();
+            f3.createNewFile();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        System.out.println("FileList遍历");
+        for(File f : dir1.listFiles()){
+            System.out.print(f + " ");
+            if(f.isDirectory()){
+                System.out.println("是目录");
+            }else if(f.isFile()){
+                System.out.println("是文件");
+            }
+
+        }
+    }
 
 // 10【递归基础】
 // 编写一个递归方法 countDown(int n)，从n开始依次输出到1。
