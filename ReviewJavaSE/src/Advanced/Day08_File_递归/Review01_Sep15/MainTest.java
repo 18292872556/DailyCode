@@ -53,7 +53,7 @@ public class MainTest {
         System.out.println("f1文件大小：" + f1.length());
         System.out.println("f1是否为文件：" + f1.isFile());
 
-        File dir1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15" +);
+        File dir1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15" );
         //本目录
         System.out.println("dir1是否存在：" + dir1.exists());
         System.out.println("dir1文件大小：" + dir1.length());
@@ -176,6 +176,19 @@ public class MainTest {
 // 10【递归基础】
 // 编写一个递归方法 countDown(int n)，从n开始依次输出到1。
 // 要求设置明确的递归结束条件，不能无限递归。
+    private static void demo10(){
+        countDown(10);
+    }
+    private static void countDown(int n){
+        if(n > 1){//最后一次调用就是2-1为1
+            countDown(n-1);
+
+//            return n;
+        }
+        System.out.println(n);
+//        return 0 ;
+
+    }
 
 // 11【递归累加】
 // 编写递归方法 getSum(int n)，计算1~n的累加和。
@@ -216,4 +229,8 @@ public class MainTest {
 // 20【综合：文件统计】
 // 编写递归方法统计指定目录下所有文件的数量，并返回总数。
 // 目录只负责继续递归，文件数量+1，最终输出文件总数。
+
+    public static void main(String[] args) {
+        demo10();
+    }
 }
