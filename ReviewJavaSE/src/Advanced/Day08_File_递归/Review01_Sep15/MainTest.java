@@ -193,10 +193,22 @@ public class MainTest {
 // 11【递归累加】
 // 编写递归方法 getSum(int n)，计算1~n的累加和。
 // 例如传入5，返回15。
+    private static void demo11(){
+        System.out.println("5! = " + getSum(5));
+    }
+    private static int getSum(int n){
+        if(n < 1){
+            return 0;
+        }
+        return n + getSum(n-1);
+    }
 
 // 12【递归阶乘】
 // 编写递归方法 getFactorial(int n)，计算n的阶乘。
 // 例如传入5，返回120，并设置正确的递归出口。
+    private static void demo12(){
+        
+    }
 
 // 13【递归执行过程】
 // 在递归求阶乘的方法中加入输出，观察方法调用和返回的过程。
@@ -231,6 +243,7 @@ public class MainTest {
 // 目录只负责继续递归，文件数量+1，最终输出文件总数。
 
     public static void main(String[] args) {
-        demo10();
+//        demo10();
+        demo11();
     }
 }
