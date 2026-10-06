@@ -207,16 +207,56 @@ public class MainTest {
 // 编写递归方法 getFactorial(int n)，计算n的阶乘。
 // 例如传入5，返回120，并设置正确的递归出口。
     private static void demo12(){
-        
+        System.out.println(getFactorial(5));
+    }
+
+    private static int getFactorial(int n){
+        if(n < 2){
+            return 1;
+        }
+        return n*getFactorial(n-1);
     }
 
 // 13【递归执行过程】
 // 在递归求阶乘的方法中加入输出，观察方法调用和返回的过程。
 // 用5测试，理解为什么递归最终能够返回到最初调用的方法。
+    /*到底要输出什么？
+    * 理解递归为什么能够返回到最初调用的方法
+    * 因为这是层层递归，例如n的阶乘是n*(n-1的阶乘）
+    * 所以又要去求n-1的阶乘，然后n-1的阶乘是n-1*(n-2的阶乘）
+    * 以此类推直到n==1,1的阶乘为1。然后返回上一层调用
+    * */
+    private static void demo13(){
+        getFactorial2(5);
+    }
+    private static int getFactorial2(int n){
+        if(n < 2){
+            return 1;
+        }
+        System.out.println("调用到" + (n-1) + "的阶乘");
+        return n*getFactorial2(n-1);
+    }
 
 // 14【递归遍历目录】
 // 编写 printDir(File dir)，递归遍历一个目录的所有层级。
 // 文件输出“文件名+绝对路径”，目录输出“目录+绝对路径”。
+    private static void demo14(){
+        File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
+                "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
+        printDir(f);
+    }
+    private static void printDir(File dir){
+        if(dir.isDirectory()){
+            File[] files = dir.listFiles();
+            System.out.println(dir+" + " + dir.getName());
+            for(File f : files){
+                printDir(f);
+            }
+        }else{
+            //说明是文件，输出文件名
+            System.out.println(dir);
+        }
+    }
 
 // 15【递归搜索.java文件】
 // 在递归遍历目录的基础上，只输出名称以“.java”结尾的文件。
@@ -244,6 +284,9 @@ public class MainTest {
 
     public static void main(String[] args) {
 //        demo10();
-        demo11();
+//        demo11();
+//        demo12();
+//        demo13();
+        demo14();
     }
 }
