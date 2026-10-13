@@ -248,12 +248,12 @@ public class MainTest {
     private static void printDir(File dir){
         if(dir.isDirectory()){
             File[] files = dir.listFiles();
-            System.out.println(dir+" + " + dir.getName());
+            System.out.println(dir + " + " + dir.getName());
             for(File f : files){
                 printDir(f);
             }
         }else{
-            //说明是文件，输出文件名
+            //说明是文件，输出文件路径
             System.out.println(dir);
         }
     }
@@ -261,6 +261,26 @@ public class MainTest {
 // 15【递归搜索.java文件】
 // 在递归遍历目录的基础上，只输出名称以“.java”结尾的文件。
 // 遇到目录继续递归，遇到其他文件不输出。
+    /*endsWith*/
+    private static void demo15(){
+        File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
+                "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
+        printEndsJava(f);
+    }
+
+    private static void printEndsJava(File dir){
+        if(dir.isFile() && dir.getName().endsWith(".java")){
+            System.out.println(dir + " + " + dir.getName());
+        }
+        if(dir.isDirectory()){
+            File[] files = dir.listFiles();
+            for(File f : files){
+                printEndsJava(f);
+            }
+        }
+
+    }
+
 
 // 16【FileFilter】
 // 使用 listFiles(FileFilter) 改写上一题，不再在遍历循环中判断是否保留文件。
@@ -288,5 +308,7 @@ public class MainTest {
 //        demo12();
 //        demo13();
         demo14();
+        System.out.println("----");
+        demo15();
     }
 }
