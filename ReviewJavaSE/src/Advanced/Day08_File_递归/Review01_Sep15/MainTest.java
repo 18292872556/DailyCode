@@ -1,5 +1,6 @@
 package Advanced.Day08_File_递归.Review01_Sep15;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -286,9 +287,36 @@ public class MainTest {
 // 使用 listFiles(FileFilter) 改写上一题，不再在遍历循环中判断是否保留文件。
 // 过滤规则：保留“.java”文件和目录。
 
+
 // 17【FileFilter匿名内部类】
 // 使用FileFilter匿名内部类实现过滤器，并在accept()中完成判断。
 // 返回true表示保留：“.java”文件或目录；否则返回false。
+    private static void demo17(){
+        File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
+            "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
+        printEndsJava(f);
+    }
+    private static void printFilter(File f){
+        File[] files = f.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().endsWith(".java") || pathname.isDirectory();
+            }
+        });
+
+        //拿到了过滤后的目录f下的所有子文件/子目录。并且如果是文件只保留以.java为结尾的
+        //开始遍历输出（文件）or递归（目录的情况）
+
+        for(File file : files){
+            if(file.isFile()){
+                System.out.println("文件：" + file.getAbsolutePath());
+            }else{
+                printFilter(file);
+            }
+        }
+
+    }
+
 
 // 18【Lambda改写FileFilter】
 // 将上一题的FileFilter匿名内部类改写成Lambda表达式。
