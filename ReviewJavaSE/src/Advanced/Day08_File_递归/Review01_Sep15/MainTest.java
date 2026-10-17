@@ -25,10 +25,7 @@ public class MainTest {
         File f2 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15" +
                 "demo01.txt", "a.txt");
         File f3 = new File(f1, "b.txt");
-
     }
-
-
 
 // 02【File路径信息】
 // 创建一个File对象，分别输出它的绝对路径、构造时使用的路径、名称。
@@ -40,16 +37,15 @@ public class MainTest {
         System.out.println("f1绝对路径：" + f1.getAbsolutePath());
         System.out.println("f1构造时候的相对路径：" + f1.getPath());
         System.out.println("f1名称:" + f1.getName());
-
-
     }
 
 // 03【文件长度与类型】
 // 创建一个指向实际文件的File对象，输出文件大小，并判断它是否存在、是否为文件。
 // 再创建一个实际目录进行同样的存在性和类型判断。
     private static void demo03(){
-        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归/Review01_Sep15" +
-                "MainTest.java");//本文件
+        File f1 = new File("ReviewJavaSE/src/Advanced/Day08_File_递归" +
+                "/Review01_Sep15" +
+                "Main.java");//本文件
         System.out.println("f1是否存在：" + f1.exists());
         System.out.println("f1文件大小：" + f1.length());
         System.out.println("f1是否为文件：" + f1.isFile());
@@ -244,14 +240,14 @@ public class MainTest {
     private static void demo14(){
         File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
                 "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
-        printDir(f);
+        printDir14(f);
     }
-    private static void printDir(File dir){
+    private static void printDir14(File dir){
         if(dir.isDirectory()){
             File[] files = dir.listFiles();
             System.out.println(dir + " + " + dir.getName());
             for(File f : files){
-                printDir(f);
+                printDir14(f);
             }
         }else{
             //说明是文件，输出文件路径
@@ -266,17 +262,17 @@ public class MainTest {
     private static void demo15(){
         File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
                 "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
-        printEndsJava(f);
+        printDir15(f);
     }
 
-    private static void printEndsJava(File dir){
+    private static void printDir15(File dir){
         if(dir.isFile() && dir.getName().endsWith(".java")){
             System.out.println(dir + " + " + dir.getName());
         }
         if(dir.isDirectory()){
             File[] files = dir.listFiles();
             for(File f : files){
-                printEndsJava(f);
+                printDir15(f);
             }
         }
 
@@ -286,6 +282,28 @@ public class MainTest {
 // 16【FileFilter】
 // 使用 listFiles(FileFilter) 改写上一题，不再在遍历循环中判断是否保留文件。
 // 过滤规则：保留“.java”文件和目录。
+    /*下一次是用内部类，所以这题用重写一个独立的实现类，就叫FileFilterImpl吧，因为FileFilter过滤器是接口*/
+    private static void demo16(){
+
+        File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
+                "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
+        printDir16(f);
+
+
+
+    }
+    private static void printDir16(File dir){
+        FileFilterImpl filter = new FileFilterImpl();//过滤器实现类对象
+        File[] files = dir.listFiles(filter);
+
+        for(File f : files){
+            if(f.isDirectory()){
+                printDir16(f);
+            }else{
+                System.out.println("文件：" + f.getAbsolutePath());
+            }
+        }
+    }
 
 
 // 17【FileFilter匿名内部类】
@@ -294,9 +312,9 @@ public class MainTest {
     private static void demo17(){
         File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
             "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
-        printEndsJava(f);
+        printDir17(f);
     }
-    private static void printFilter(File f){
+    private static void printDir17(File f){
         File[] files = f.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
@@ -311,7 +329,7 @@ public class MainTest {
             if(file.isFile()){
                 System.out.println("文件：" + file.getAbsolutePath());
             }else{
-                printFilter(file);
+                printDir17(file);
             }
         }
 
@@ -321,22 +339,88 @@ public class MainTest {
 // 18【Lambda改写FileFilter】
 // 将上一题的FileFilter匿名内部类改写成Lambda表达式。
 // 保持过滤规则不变：“.java”文件或目录。
+    private static void demo18(){
+        File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
+                "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
+        printDir18(f);
+    }
+    private static void printDir18(File dir){
+        File[] files = dir.listFiles(f ->{
+            return f.isDirectory() || f.getName().endsWith(".java");
+        });//注意这里的简化需要一个参数起名随意
+
+        for(File file : files){
+            if(file.isDirectory()){
+                printDir18(file);
+            }else{
+                System.out.println("文件：" + file.getAbsolutePath());
+            }
+        }
+
+    }
 
 // 19【综合：递归文件搜索】
 // 编写searchJava(File dir)，递归搜索指定目录及所有子目录中的“.java”文件。
 // 使用FileFilter + Lambda筛选，只打印符合条件的文件绝对路径。
+    private static void demo19(){
+        File f = new File("C:\\Users\\XueXueZi\\xue_file\\2领域\\IDEA_Project" +
+                "\\JavaSE\\ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
+        searchJava(f);
+    }
+    private static void searchJava(File dir){
+        File[] files = dir.listFiles(f ->{
+            return f.isDirectory() || f.getName().endsWith(".java");
+        });
+        //需要保留目录类型，以防其下有.java类型的文件
+        for(File file : files){
+            if(file.isDirectory()){
+                searchJava(file);
+            }else{
+                System.out.println(file.getAbsolutePath());
+            }
+        }
+    }
 
 // 20【综合：文件统计】
 // 编写递归方法统计指定目录下所有文件的数量，并返回总数。
 // 目录只负责继续递归，文件数量+1，最终输出文件总数。
+    /*思考：因为是递归，文件数量获取到后要如何传递呢？
+    * 例如进入到一个子目录，循环遍历其下的文件列表，如果是文件就统计+1，如果是目录就
+    * 递归调用这个子目录来遍历，但同时需要返回值即目录文件都遍历完以后，返回*/
+    private static void demo20(){
+        File dir = new File("ReviewJavaSE\\src\\Advanced\\Day08_File_递归");
+        System.out.println("目录：" + dir + "下的文件总数：" + countFile(dir));;
+    }
+    private static int countFile(File dir){
+        if(dir.isFile()){
+            return 1;
+        }
+        File[] files = dir.listFiles();
+//        int count = 0; //当前目录层的文件个数
+        int count = 0;//
+        for(File file : files){
+            count += countFile(file);//递归每一个子目录，直到是文件返回累加
+        }
+        return count;
+    }
 
     public static void main(String[] args) {
+        demo01();
+        demo02();
+        demo03();
+        demo04();
+        demo05();
+        demo06();
+        demo07();
+        demo08();
+        demo09();
 //        demo10();
 //        demo11();
 //        demo12();
 //        demo13();
-        demo14();
+//        demo14();
         System.out.println("----");
-        demo15();
+//        demo15();
+        demo20();
     }
 }
